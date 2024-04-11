@@ -1,47 +1,4 @@
 /*
-      {path !== "" && (
-        <div>
-          <a
-            href=""
-            onClick={(e) => {
-              e.preventDefault();
-              if (path.split("\\").length - 1 == 1) {
-                let newPath = path.substring(0, path.lastIndexOf("\\")) + "\\";
-                if (newPath != path) {
-                  setPath(newPath);
-                  console.log("root");
-                } else {
-                  setPath("");
-                  setEntries([]);
-                }
-              } else {
-                setPath((path) => {
-                  return path.substring(0, path.lastIndexOf("\\"));
-                });
-              }
-            }}
-          >
-            {" "}
-            {"< - "}Go above
-          </a>
-        </div>
-      )}
-
-
-      {path !== "" && (
-        <div>
-          <a
-            href=""
-            onClick={async (e) => {
-              e.preventDefault();
-              setEntries(await requestEntries(path));
-            }}
-          >
-            Reload
-          </a>
-        </div>
-      )}
-
      {path !== "" && (
         <div>
           <input
@@ -63,8 +20,8 @@
 */
 
 import { MouseEvent } from "react";
-import { ENTRY_LIST_ITEM_PROPS } from "../entry/entry-list";
-import { Entry } from "../entry/entry";
+import { ENTRY_LIST_ITEM_PROPS } from "./entry-list";
+import { Entry } from "./entry";
 
 export const Sidebar = ({
   entries,
@@ -80,6 +37,7 @@ export const Sidebar = ({
           return (
             <li className="sidebar-list-item" key={entry.fullPath}>
               <Entry
+                isBaseSelection={entry.isBaseSelection}
                 isSelected={entry.isSelected}
                 displayName={entry.displayName}
                 type={entry.displayType}

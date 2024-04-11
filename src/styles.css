@@ -17,6 +17,12 @@ body {
   height: 100%;
   margin-top: calc(48px + 24px);
 }
+.content-container {
+  width: fit-content;
+}
+/*
+  Selection footer
+*/
 .selection-footer {
   position: fixed;
   bottom: 0px;
@@ -29,18 +35,9 @@ body {
   font-size: 14px;
   color: #dddddd;
 }
-.entry {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  width: 100%;
-  padding: 1%;
-  margin: 1px;
-}
-.entry-list {
-  list-style: none;
-  width: 200%;
-}
+/*
+  Sidebar
+*/
 .sidebar {
   border-right: 1px solid #fff;
   display: flex;
@@ -48,15 +45,14 @@ body {
   padding-right: 50px;
   height: calc(80vh);
 }
-.content-container {
-  width: fit-content;
-}
-
 .sidebar-list {
   padding-left: 24px;
   width: inherit;
   list-style: none;
 }
+/*
+  Entry
+*/
 .entry-unselected:hover{
   background-clip: padding-box;
   background-color: #4d4d4d;
@@ -67,6 +63,21 @@ body {
   background-color: #777777;
   border-radius: 5px;
 }
+.entry-base-selection{
+  border: 1px solid #777777
+}
+.entry {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+  padding: 5px;
+  margin: 1px;
+}
+.entry-list {
+  list-style: none;
+  width: 200%;
+}
 .entry-icon{
   margin-right: 2%;
   width: 24px;
@@ -75,13 +86,17 @@ body {
 .entry-metadata-disk{
   margin-left: 32px;
 }
+/*
+  Navigation header
+*/
 .header {
   background-color: #1a212a;
   display: flex;
-  flex: row;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
   position: fixed;
+  gap: 50px;
   top: 0px;
   left: 0px;
   width: 100vw;
@@ -93,4 +108,19 @@ body {
   width: 50vw;
   padding: 5px;
   font-weight: 300;
+}
+.header-left-icon-tab{
+  width: 25vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  gap: 5%;
+}
+.header-icon-disabled{
+  color: rgb(151, 151, 151);
+  cursor:default;
+}
+.header-icon-enabled {
+ cursor: pointer;
 }

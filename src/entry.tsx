@@ -8,6 +8,7 @@ type EntryProps = {
   type: ENTRY_TYPE;
   onClick: MouseEventHandler;
   isSelected: boolean;
+  isBaseSelection: boolean;
   metadata?: ENTRY_LIST_ITEM_METADATA;
 };
 
@@ -16,14 +17,20 @@ export function Entry({
   type,
   onClick,
   isSelected,
+  isBaseSelection,
   metadata,
 }: EntryProps) {
   /**
    * Base entry for any item
    * Provides rendering and sort of selection of the entity based on the type
    */
-  const className =
-    "entry " + (isSelected ? "entry-selected" : "entry-unselected");
+  let className =
+    "entry " +
+    (isSelected
+      ? "entry-selected"
+      : isBaseSelection
+      ? "entry-base-selection"
+      : "entry-unselected");
 
   return (
     <div className={className} onClick={onClick}>

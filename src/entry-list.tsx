@@ -13,6 +13,7 @@ export type ENTRY_LIST_ITEM_METADATA = {
 
 export type ENTRY_LIST_ITEM_PROPS = {
   isSelected: boolean;
+  isBaseSelection: boolean;
   displayType: ENTRY_TYPE;
   displayName: string;
   fullPath: string;
@@ -35,6 +36,7 @@ export function EntryList({ entries, onClick }: ENTRY_LIST_PROPS) {
           <Entry
             isSelected={entry.isSelected}
             displayName={entry.displayName}
+            isBaseSelection={entry.isBaseSelection}
             type={entry.displayType}
             metadata={entry.metadata}
             onClick={(e) => {

@@ -1,7 +1,7 @@
 import { invoke } from "@tauri-apps/api/tauri";
-import { ENTRY_LIST_ITEM_PROPS } from "../entry/entry-list";
-import { ENTRY_TYPE } from "../entry/types";
-import { INTERNALS_HOME, INTERNALS_MARK } from "../internals/const";
+import { ENTRY_LIST_ITEM_PROPS } from "./entry-list";
+import { ENTRY_TYPE } from "./types";
+import { INTERNALS_HOME, INTERNALS_MARK } from "./internals";
 
 type EntryBackendProps = {
   path: string;
@@ -22,6 +22,7 @@ export const requestEntries = async (
       let disks = (await invoke("get_disk_list")) as EntryDisksBackendProps;
       return disks.flatMap((disk: string[]) => {
         return {
+          isBaseSelection: false,
           isSelected: false,
           displayName: `${disk[0]} [${disk[2]}]`,
           displayType: "disk",
@@ -43,6 +44,7 @@ export const requestEntries = async (
   })) as EntryBackendProps[];
   return entities.flatMap((entry: EntryBackendProps): ENTRY_LIST_ITEM_PROPS => {
     return {
+      isBaseSelection: false,
       isSelected: false,
       displayName: toFileName(entry.path),
       displayType: entry.type_ as ENTRY_TYPE,
