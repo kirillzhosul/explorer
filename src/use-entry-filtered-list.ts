@@ -20,6 +20,8 @@ function compareEntrySorter(
 
 export type ENTRY_FILTERS = {
   hideDotFiles: boolean;
+  hideSystem: boolean;
+  hideHidden: boolean;
 };
 
 export const useEntryFilteredList = () => {
@@ -28,6 +30,8 @@ export const useEntryFilteredList = () => {
   >([]);
   const [filters, setFilters] = useState<ENTRY_FILTERS>({
     hideDotFiles: false,
+    hideHidden: true,
+    hideSystem: true,
   });
   const [entries, setEntries] = useState<ENTRY_LIST_ITEM_PROPS[]>([]);
 
@@ -36,6 +40,17 @@ export const useEntryFilteredList = () => {
     if (filters.hideDotFiles) {
       entries = entries.filter((e: ENTRY_LIST_ITEM_PROPS) => {
         return !e.displayName.startsWith(".");
+      });
+    }
+    if (filters.hideHidden) {
+      entries = entries.filter((e: ENTRY_LIST_ITEM_PROPS) => {
+        return !e.metadata?.attributes?.windows?.hidden;
+      });
+    }
+
+    if (filters.hideSystem) {
+      entries = entries.filter((e: ENTRY_LIST_ITEM_PROPS) => {
+        return !e.metadata?.attributes?.windows?.system;
       });
     }
     return entries;

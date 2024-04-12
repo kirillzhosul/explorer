@@ -20,6 +20,7 @@ import { Sidebar } from "./sidebar";
 import {
   INTERNALS_HOME,
   INTERNALS_MARK,
+  INTERNALS_SETTINGS,
   displayInternalPath,
 } from "./internals";
 import { useHistoryNavigation } from "./use-history-navigation";
@@ -27,6 +28,8 @@ import { useKeyboardHandler } from "./use-keyboard-handler";
 import { useContextMenu } from "./use-context-menu";
 import { CONTEXT_MENU_DISPATCH_TYPE, ContextMenu } from "./context-menu";
 import { useSettingsStorage } from "./settings-storage";
+import { SettingsView } from "./settings-view";
+import { parseWindowsAttributes } from "./attributes";
 
 function App() {
   const [path, setPath] = useState<string>(INTERNALS_HOME);
@@ -48,7 +51,7 @@ function App() {
   const { heldButtons } = useKeyboardHandler();
   const { pushToHistory, getNavigationDisabledActions, popPathNavigation } =
     useHistoryNavigation();
-  const { setEntries, filteredEntries } = useEntryFilteredList();
+  const { setEntries, filteredEntries, setFilters } = useEntryFilteredList();
 
   const executeEntry = (path: string, entry?: ENTRY_LIST_ITEM_PROPS) => {
     const fullPath = entry ? entry.fullPath : path;
@@ -72,7 +75,7 @@ function App() {
   ) => {
     if (
       entry.fullPath.startsWith(INTERNALS_MARK) &&
-      entry.fullPath !== INTERNALS_HOME
+      ![INTERNALS_HOME, INTERNALS_SETTINGS].includes(entry.fullPath)
     ) {
       throw Error("Tried to handle internal path");
     }
@@ -189,14 +192,22 @@ function App() {
         break;
       case "bookmark":
         setSettings({
+          ...settings,
           bookmarkedPaths: [
-            ...new Set([...settings.bookmarkedPaths, ...selectedPaths]),
+            ...new Set([
+              ...settings.bookmarkedPaths,
+              ...selectedPaths.filter((path) => {
+                return !path.startsWith(INTERNALS_MARK);
+              }),
+            ]),
           ],
         });
         break;
       case "remove-bookmark":
         const bookmarkEntry = selectionEntries[0];
+
         setSettings({
+          ...settings,
           bookmarkedPaths: settings.bookmarkedPaths.filter((path) => {
             return bookmarkEntry.fullPath != path;
           }),
@@ -221,6 +232,16 @@ function App() {
   const selectionAsEntries = async (): Promise<ENTRY_LIST_ITEM_PROPS[]> => {
     return await Promise.all(
       selectedPaths.map(async (path) => {
+        if (path.startsWith(INTERNALS_MARK)) {
+          return {
+            isBookmarked: false,
+            isBaseSelection: baseSelectedPath === path,
+            isSelected: selectedPaths.includes(path),
+            displayName: displayBaseNameFromPath(path),
+            displayType: "dir",
+            fullPath: path,
+          } as ENTRY_LIST_ITEM_PROPS;
+        }
         let itemInfo = await getItemInfo(path);
 
         return {
@@ -230,6 +251,14 @@ function App() {
           displayName: displayBaseNameFromPath(itemInfo.path),
           displayType: itemInfo.type_,
           fullPath: itemInfo.path,
+          metadata: {
+            readonly: itemInfo.readonly,
+            attributes: {
+              windows: parseWindowsAttributes(itemInfo.attributes.windows),
+              linux: undefined,
+            },
+            fileSize: itemInfo.file_size,
+          },
         } as ENTRY_LIST_ITEM_PROPS;
       })
     );
@@ -244,6 +273,14 @@ function App() {
     reloadEntriesFromApi(path);
   }, [path]);
 
+  useEffect(() => {
+    setFilters({
+      hideDotFiles: settings.hideDottedFiles,
+      hideSystem: settings.hideSystem,
+      hideHidden: settings.hideHidden,
+    });
+  }, [settings]);
+
   // Deselect
   useEffect(() => {
     setSelectedPaths([]);
@@ -253,32 +290,46 @@ function App() {
   useEffect(() => {
     (async () => {
       setSidebarEntities([
+        // TODO: Uncaught error
+        ...(await requestEntries(INTERNALS_HOME)).map((e: any) => {
+          return { ...e, isSelected: selectedPaths.includes(e.fullPath) };
+        }),
+        ...(await Promise.all(
+          settings.bookmarkedPaths
+            .map(async (path) => {
+              try {
+                let itemInfo = await getItemInfo(path);
+
+                return {
+                  isBookmarked: true,
+                  isBaseSelection: baseSelectedPath === itemInfo.path,
+                  isSelected: selectedPaths.includes(itemInfo.path),
+                  displayName: displayBaseNameFromPath(itemInfo.path),
+                  displayType: itemInfo.type_,
+                  fullPath: itemInfo.path,
+                };
+              } catch {
+                return;
+              }
+            })
+            .filter((entry) => entry !== undefined)
+        )),
         {
           isBaseSelection: baseSelectedPath === INTERNALS_HOME,
           isSelected: selectedPaths.includes(INTERNALS_HOME),
           displayName: displayInternalPath(INTERNALS_HOME),
           displayType: "dir",
           fullPath: INTERNALS_HOME,
-          isBookmarked: true,
+          isBookmarked: false,
         },
-        // TODO: Uncaught error
-        ...(await requestEntries(INTERNALS_HOME)).map((e: any) => {
-          return { ...e, isSelected: selectedPaths.includes(e.fullPath) };
-        }),
-        ...(await Promise.all(
-          settings.bookmarkedPaths.map(async (path) => {
-            let itemInfo = await getItemInfo(path);
-
-            return {
-              isBookmarked: true,
-              isBaseSelection: baseSelectedPath === itemInfo.path,
-              isSelected: selectedPaths.includes(itemInfo.path),
-              displayName: displayBaseNameFromPath(itemInfo.path),
-              displayType: itemInfo.type_,
-              fullPath: itemInfo.path,
-            };
-          })
-        )),
+        {
+          isBaseSelection: baseSelectedPath === INTERNALS_SETTINGS,
+          isSelected: selectedPaths.includes(INTERNALS_SETTINGS),
+          displayName: displayInternalPath(INTERNALS_SETTINGS),
+          displayType: "dir",
+          fullPath: INTERNALS_SETTINGS,
+          isBookmarked: false,
+        },
       ]);
     })();
   }, [settings, selectedPaths]);
@@ -338,6 +389,9 @@ function App() {
     })();
   }, [selectedPaths, settings]);
 
+  //console.log(selectionEntries);
+  const isInternalPage =
+    path.startsWith(INTERNALS_MARK) && path !== INTERNALS_HOME;
   return (
     <>
       <ContextMenu
@@ -351,29 +405,44 @@ function App() {
       />
       <div className="app-container">
         <Sidebar
+          settings={settings}
           entries={sidebarEntities}
           onClick={(e, entry) => handleEntryClick(e, entry, "sidebar-behavior")}
         />
         <div className="content-container">
-          <EntryList
-            entries={filteredEntries.flatMap((entry) => {
-              return {
-                ...entry,
-                isSelected: selectedPaths.includes(entry.fullPath),
-                isBaseSelection: entry.fullPath === baseSelectedPath,
-              };
-            })}
-            view_as={viewAs}
-            onClick={(e, entry) =>
-              handleEntryClick(e, entry, "default-behavior")
-            }
-          />
+          {isInternalPage && (
+            <SettingsView
+              settings={settings}
+              setSettings={setSettings}
+            ></SettingsView>
+          )}
+          {!isInternalPage && (
+            <EntryList
+              settings={settings}
+              entries={filteredEntries.flatMap((entry) => {
+                return {
+                  ...entry,
+                  isSelected: selectedPaths.includes(entry.fullPath),
+                  isBaseSelection: entry.fullPath === baseSelectedPath,
+                };
+              })}
+              viewAs={viewAs}
+              onClick={(e, entry) =>
+                handleEntryClick(e, entry, "default-behavior")
+              }
+            />
+          )}
         </div>
       </div>
-      <SelectionFooter
-        itemsCount={filteredEntries.length}
-        selectedCount={selectedPaths.length}
-      />
+      {settings.displayFooter && (
+        <SelectionFooter
+          itemsCount={filteredEntries.length}
+          selectedCount={selectedPaths.length}
+          selectionSize={selectionEntries.reduce((acc, b) => {
+            return acc + (b.metadata?.fileSize ?? 0);
+          }, 0)}
+        />
+      )}
     </>
   );
 }

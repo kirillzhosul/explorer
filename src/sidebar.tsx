@@ -22,12 +22,15 @@
 import { MouseEvent } from "react";
 import { ENTRY_LIST_ITEM_PROPS } from "./entry-list";
 import { Entry } from "./entry";
+import { SettingsDTO } from "./settings-storage";
 
 export const Sidebar = ({
   entries,
   onClick,
+  settings,
 }: {
   entries: ENTRY_LIST_ITEM_PROPS[];
+  settings: SettingsDTO;
   onClick: (e: MouseEvent, entry: ENTRY_LIST_ITEM_PROPS) => any;
 }) => {
   return (
@@ -37,6 +40,7 @@ export const Sidebar = ({
           return (
             <li className="sidebar-list-item" key={entry.fullPath}>
               <Entry
+                settings={settings}
                 isBookmarked={entry.isBookmarked}
                 isBaseSelection={entry.isBaseSelection}
                 isSelected={entry.isSelected}

@@ -2,6 +2,7 @@ import { MouseEventHandler } from "react";
 import { EntryIcon, Extensions } from "./entry-icon";
 import { ENTRY_TYPE } from "./types";
 import { ENTRY_LIST_ITEM_METADATA } from "./entry-list";
+import { SettingsDTO } from "./settings-storage";
 
 type EntryProps = {
   displayName: string;
@@ -11,6 +12,7 @@ type EntryProps = {
   isBaseSelection: boolean;
   metadata?: ENTRY_LIST_ITEM_METADATA;
   isBookmarked?: boolean;
+  settings: SettingsDTO;
 };
 
 const isSeparator = (value: string): boolean =>
@@ -41,6 +43,7 @@ export function Entry({
   isBaseSelection,
   metadata,
   isBookmarked,
+  settings,
 }: EntryProps) {
   /**
    * Base entry for any item
@@ -56,10 +59,12 @@ export function Entry({
 
   return (
     <div className={className} onClick={onClick}>
-      <EntryIcon
-        type={type}
-        extension={extensionFromPath(displayName) as Extensions}
-      />
+      {settings.displayIcons && (
+        <EntryIcon
+          type={type}
+          extension={extensionFromPath(displayName) as Extensions}
+        />
+      )}
 
       <span className="entry-text">{displayName}</span>
       {isBookmarked && (

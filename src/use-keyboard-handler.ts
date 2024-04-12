@@ -5,7 +5,7 @@ export const useKeyboardHandler = () => {
 
   useEffect(() => {
     const keyDownHandler = (event: any) => {
-      event.preventDefault();
+      //event.preventDefault();
       if (heldButtons.includes(event.key)) {
         return;
       }

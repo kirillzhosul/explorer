@@ -4,6 +4,7 @@
 use disk_list;
 use opener;
 use std::fs::File;
+use std::os::windows::fs::MetadataExt;
 use std::path::Path;
 use std::process::Command;
 use std::{fs, path::PathBuf};
@@ -12,6 +13,13 @@ use std::{fs, path::PathBuf};
 struct ItemEntry<'a> {
     path: PathBuf,
     type_: &'a str,
+    readonly: bool,
+    attributes: ItemEntryAttributes,
+    file_size: u64,
+}
+#[derive(serde::Serialize)]
+struct ItemEntryAttributes {
+    windows: u32,
 }
 
 #[tauri::command]
@@ -24,6 +32,14 @@ fn execute_file(path: &str) {
 fn get_disk_list() -> Vec<Vec<String>> {
     disk_list::get_disk_list()
 }
+
+// TODO: Implement
+#[tauri::command]
+fn get_windows_link_info() {}
+
+// TODO: Implement
+#[tauri::command]
+fn rename_item() {}
 
 #[tauri::command]
 fn create_directory<'a>(path: &'a str, name: &'a str) -> Result<&'a str, String> {
@@ -63,9 +79,15 @@ fn open_terminal_in_directory(path: &str) {
 #[tauri::command]
 fn get_item_info(path: &str) -> Result<ItemEntry, String> {
     let meta = fs::metadata(path).map_err(|err| err.to_string())?;
+
     Ok(ItemEntry {
         path: Path::new(path).to_path_buf(),
         type_: if meta.is_dir() { "dir" } else { "file" },
+        readonly: meta.permissions().readonly(),
+        attributes: ItemEntryAttributes {
+            windows: meta.file_attributes(),
+        },
+        file_size: 0,
     })
 }
 
@@ -77,8 +99,13 @@ fn list_directory(path: &str) -> Result<Vec<ItemEntry>, String> {
         let entry = entry.unwrap();
         let meta = entry.metadata().unwrap();
         buf.push(ItemEntry {
+            readonly: meta.permissions().readonly(),
             path: entry.path(),
             type_: if meta.is_dir() { "dir" } else { "file" },
+            attributes: ItemEntryAttributes {
+                windows: meta.file_attributes(),
+            },
+            file_size: meta.file_size(),
         })
     }
 
@@ -95,7 +122,9 @@ fn main() {
             delete_item,
             create_directory,
             create_text_file,
-            get_item_info
+            get_item_info,
+            rename_item,
+            get_windows_link_info
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
