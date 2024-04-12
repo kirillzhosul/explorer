@@ -34,12 +34,12 @@ For now there is mess in the source code, main goal is to build maintainable cod
 
 #### Home page
 
-![](docs/home.png)
+![](docs/readme/images/home.png)
 
 #### Some files
 
-![](docs/files.png)
+![](docs/readme/images/files.png)
 
 #### Selection and context menu (with no selection)
 
-![](docs/selection.png)
+![](docs/readme/images/selection.png)
