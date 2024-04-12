@@ -13,6 +13,7 @@ export type ENTRY_LIST_ITEM_METADATA = {
 
 export type ENTRY_LIST_ITEM_PROPS = {
   isSelected: boolean;
+  isBookmarked?: boolean;
   isBaseSelection: boolean;
   displayType: ENTRY_TYPE;
   displayName: string;
@@ -34,6 +35,7 @@ export function EntryList({ entries, onClick }: ENTRY_LIST_PROPS) {
       {entries.map((entry: ENTRY_LIST_ITEM_PROPS) => (
         <li key={entry.fullPath} className="entry-list-item">
           <Entry
+            isBookmarked={entry.isBookmarked}
             isSelected={entry.isSelected}
             displayName={entry.displayName}
             isBaseSelection={entry.isBaseSelection}

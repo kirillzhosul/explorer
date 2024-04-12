@@ -63,6 +63,7 @@ export const useHistoryNavigation = () => {
   const getNavigationDisabledActions = (path: string): NAVIGATION_TYPE[] => {
     let actions: NAVIGATION_TYPE[] = ["forward"];
 
+    // TODO: disable bookmark, allow to un-bookmark
     if (path.startsWith(INTERNALS_MARK)) {
       actions.push("above");
     }

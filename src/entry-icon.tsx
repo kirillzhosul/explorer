@@ -1,21 +1,19 @@
+import { ENTRY_ICON_OVERRIDES } from "./entry-icon-overrides";
 import { ENTRY_TYPE } from "./types";
 
-type EntryIconProps = { type: ENTRY_TYPE };
+type EntryIconProps = { type: ENTRY_TYPE; extension?: Extensions };
 
-export function EntryIcon({ type }: EntryIconProps) {
-  /**
-   * Icon image for the entry
-   * determined by provided type
-   */
-  if (type == "dir") {
-    return <img src="/public/directory.png" className="entry-icon" />;
-  }
-  if (type == "file") {
-    return <img src="/public/file.png" className="entry-icon" />;
+export type Extensions = keyof typeof ENTRY_ICON_OVERRIDES.by_extension | "";
+
+export function EntryIcon({ type, extension }: EntryIconProps) {
+  let iconPath = extension ? ENTRY_ICON_OVERRIDES.by_extension[extension] : "";
+
+  if (!iconPath) {
+    iconPath = ENTRY_ICON_OVERRIDES.by_type[type];
   }
 
-  if (type == "disk") {
-    return <img src="/public/disk.png" className="entry-icon" />;
+  if (iconPath) {
+    return <img src={iconPath} className="entry-icon" />;
   }
   throw Error(`Unknown entry icon type! ${type}`);
 }

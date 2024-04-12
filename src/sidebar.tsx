@@ -37,6 +37,7 @@ export const Sidebar = ({
           return (
             <li className="sidebar-list-item" key={entry.fullPath}>
               <Entry
+                isBookmarked={entry.isBookmarked}
                 isBaseSelection={entry.isBaseSelection}
                 isSelected={entry.isSelected}
                 displayName={entry.displayName}

@@ -1,11 +1,11 @@
-import { KeyboardEvent, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
 import { invoke } from "@tauri-apps/api/tauri";
 import { SelectionFooter } from "./selection-footer";
 import { NAVIGATION_TYPE, NavigationHeader } from "./navigation-header";
 import { ENTRY_LIST_ITEM_PROPS, EntryList } from "./entry-list";
 import { useEntryFilteredList } from "./use-entry-filtered-list";
-import { requestEntries } from "./api";
+import { getItemInfo, openTerminalInDirectory, requestEntries } from "./api";
 import { Sidebar } from "./sidebar";
 import {
   INTERNALS_HOME,
@@ -13,22 +13,43 @@ import {
   displayInternalPath,
 } from "./internals";
 import { useHistoryNavigation } from "./use-history-navigation";
+import { useKeyboardHandler } from "./use-keyboard-handler";
+import { useContextMenu } from "./use-context-menu";
+import { CONTEXT_MENU_DISPATCH_TYPE, ContextMenu } from "./context-menu";
+import { useSettingsStorage } from "./settings-storage";
 
 function App() {
   const [path, setPath] = useState<string>(INTERNALS_HOME);
   const [selectedPaths, setSelectedPaths] = useState<string[]>([]);
+
   const [baseSelectedPath, setBaseSelectedPath] = useState<string | undefined>(
     undefined
   );
-
-  const [heldButtons, setHeldButtons] = useState<string[]>([]);
   const [sidebarEntities, setSidebarEntities] = useState<
     ENTRY_LIST_ITEM_PROPS[]
   >([]);
 
+  const { close: CloseContextMenu } = useContextMenu();
+  const { settings, setSettings } = useSettingsStorage();
+  const { heldButtons } = useKeyboardHandler();
   const { pushToHistory, getNavigationDisabledActions, popPathNavigation } =
     useHistoryNavigation();
   const { setEntries, filteredEntries } = useEntryFilteredList();
+
+  const executeEntry = (path: string, entry?: ENTRY_LIST_ITEM_PROPS) => {
+    const fullPath = entry ? entry.fullPath : path;
+    const displayType = entry ? entry.displayType : "any";
+    if (displayType == "dir" || displayType == "disk") {
+      pushToHistory("open_entry", entry);
+      return setPath(fullPath);
+    }
+    if (displayType == "file") {
+      pushToHistory("execute_file", entry);
+      return invoke("execute_file", { path: fullPath });
+    }
+
+    return invoke("execute_file", { path: fullPath });
+  };
 
   const handleEntryClick = (_: any, entry: ENTRY_LIST_ITEM_PROPS) => {
     if (
@@ -52,14 +73,7 @@ function App() {
           setSelectedPaths([entry.fullPath]);
           return;
         }
-        if (entry.displayType == "dir" || entry.displayType == "disk") {
-          pushToHistory("open_entry", entry);
-          return setPath(entry.fullPath);
-        }
-        if (entry.displayType == "file") {
-          pushToHistory("execute_file", entry);
-          return invoke("execute_file", { path: entry.fullPath });
-        }
+        executeEntry(entry.fullPath, entry);
       }
     } else if (heldButtons.includes("Shift")) {
     } else if (heldButtons.includes("Control")) {
@@ -103,18 +117,54 @@ function App() {
       case "forward":
         break;
       case "reload":
-        requestEntries(path).then((res) => {
-          setEntries(res);
-        });
+        reloadEntriesFromApi(path);
         break;
     }
   };
 
+  const reloadEntriesFromApi = (path: string) => {
+    requestEntries(path)
+      .then(setEntries)
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  const contextMenuDispatcher = (type: CONTEXT_MENU_DISPATCH_TYPE) => {
+    switch (type) {
+      case "refresh":
+        reloadEntriesFromApi(path);
+        break;
+      case "open-terminal-here":
+        openTerminalInDirectory(path).then();
+        break;
+      case "open":
+        selectedPaths.map((path) => {
+          executeEntry(path);
+        });
+        break;
+      case "delete":
+        break;
+      case "create-folder":
+        break;
+      case "create-text-file":
+        break;
+      case "bookmark":
+        setSettings({
+          bookmarkedPaths: [
+            ...new Set([...settings.bookmarkedPaths, ...selectedPaths]),
+          ],
+        });
+        break;
+    }
+    CloseContextMenu();
+  };
+  const displayBaseNameFromPath = (path: string) => {
+    return path.split("\\").pop();
+  };
   // Request on change path
   useEffect(() => {
-    (async () => {
-      setEntries(await requestEntries(path));
-    })();
+    reloadEntriesFromApi(path);
   }, [path]);
 
   // Deselect
@@ -127,56 +177,45 @@ function App() {
     (async () => {
       setSidebarEntities([
         {
-          isBaseSelection: false,
+          isBaseSelection: baseSelectedPath === INTERNALS_HOME,
           isSelected: selectedPaths.includes(INTERNALS_HOME),
           displayName: displayInternalPath(INTERNALS_HOME),
           displayType: "dir",
           fullPath: INTERNALS_HOME,
         },
-        ...(await requestEntries(INTERNALS_HOME)),
+        // TODO: Uncaught error
+        ...(await requestEntries(INTERNALS_HOME)).map((e: any) => {
+          return { ...e, isSelected: selectedPaths.includes(e.fullPath) };
+        }),
+        ...(await Promise.all(
+          settings.bookmarkedPaths.map(async (path) => {
+            let itemInfo = await getItemInfo(path);
+
+            return {
+              isBookmarked: true,
+              isBaseSelection: baseSelectedPath === itemInfo.path,
+              isSelected: selectedPaths.includes(itemInfo.path),
+              displayName: displayBaseNameFromPath(itemInfo.path),
+              displayType: itemInfo.type_,
+              fullPath: itemInfo.path,
+            };
+          })
+        )),
       ]);
     })();
-  }, [path]);
-
-  useEffect(() => {
-    const handledKeys = ["Control", "Shift", "a"];
-    const keyDownHandler = (event: any) => {
-      if (handledKeys.includes(event.key)) {
-        event.preventDefault();
-        if (heldButtons.includes(event.key)) {
-          return;
-        }
-        setHeldButtons((prev) => {
-          return [...prev, event.key];
-        });
-      }
-    };
-
-    const keyUpHandler = (event: any) => {
-      if (handledKeys.includes(event.key)) {
-        event.preventDefault();
-        setHeldButtons((prev) => {
-          return prev.filter((key) => {
-            return key != event.key;
-          }, prev);
-        });
-      }
-    };
-    document.addEventListener("keydown", keyDownHandler);
-    document.addEventListener("keyup", keyUpHandler);
-    return () => {
-      document.removeEventListener("keydown", keyDownHandler);
-      document.removeEventListener("keydown", keyUpHandler);
-    };
-  }, []);
+  }, [settings, selectedPaths]);
 
   useEffect(() => {
     const mouseUpHandle = (event: MouseEvent) => {
       let className = (event.target as HTMLButtonElement | undefined)
         ?.className;
+      let id = (event.target as HTMLButtonElement | undefined)?.id;
       if (className === "app-container") {
-        event.stopPropagation();
         setSelectedPaths([]);
+      }
+      if (className !== "context-menu-button" && id !== "context-menu") {
+        event.stopPropagation();
+        CloseContextMenu();
       }
     };
     document.addEventListener("mouseup", mouseUpHandle);
@@ -196,6 +235,10 @@ function App() {
   }, [heldButtons]);
   return (
     <>
+      <ContextMenu
+        dispatcher={contextMenuDispatcher}
+        selectionExists={selectedPaths.length != 0}
+      />
       <NavigationHeader
         disabledActions={getNavigationDisabledActions(path)}
         path={displayInternalPath(path)}

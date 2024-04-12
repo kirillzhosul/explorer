@@ -8,7 +8,7 @@ type NAVIGATION_HEADER_PROPS = {
   onNavigate: NAVIGATION_HANDLER;
 };
 
-function ArrowLeft() {
+export function ArrowLeft() {
   return (
     <svg width="24px" height="24px" viewBox="0 -6.5 36 36" fill="currentColor">
       <g stroke="none" strokeWidth="1" fillRule="evenodd">
@@ -25,7 +25,7 @@ function ArrowLeft() {
   );
 }
 
-function ArrowRight() {
+export function ArrowRight() {
   return (
     <svg
       width="24px"
@@ -46,7 +46,7 @@ function ArrowRight() {
   );
 }
 
-function ArrowReload() {
+export function ArrowReload() {
   return (
     <svg
       fill="currentColor"
@@ -60,7 +60,7 @@ function ArrowReload() {
   );
 }
 
-function ArrowAbove() {
+export function ArrowAbove() {
   return (
     <svg
       fill="currentColor"

@@ -124,3 +124,37 @@ body {
 .header-icon-enabled {
  cursor: pointer;
 }
+/*
+  Context menu
+*/
+#context-menu{
+  position: absolute;
+  background-color: #2b2b2b;
+  border: 1px solid #3a3a3a;
+  border-radius: 10px;
+  padding: 5px;
+  padding-left: 15px;
+  padding-right: 50px;
+  animation: context-menu-animation 0.25s linear;
+}
+.context-menu-opened{
+  display: block;
+}
+.context-menu-closed {
+  display:none;
+}
+.context-menu-button{
+  font-weight: 300;
+  cursor: pointer;
+}
+.context-menu-button:hover{
+  background-color: #373738;
+  border-radius: 5px;
+  cursor: pointer;
+}
+@keyframes context-menu-animation {
+  0% {opacity: 0;}
+  25% {opacity: 0.5;}
+ 50% {opacity: 0.75;}
+100% {opacity: 1;}
+}
