@@ -1,27 +1,27 @@
 export const ENTRY_ICON_OVERRIDES = {
   by_type: {
-    file: "/file.png",
-    dir: "/directory.png",
-    disk: "/disk.png",
+    file: "/icons/file.png",
+    dir: "/icons/directory.png",
+    disk: "/icons/drive.png",
   },
   by_extension: {
-    zip: "/file-zip.png",
+    zip: "/icons/extensions/zip.png",
 
-    rar: "/file-archive.png",
-    tar: "/file-archive.png",
+    rar: "/icons/extensions/abstract/archive.png",
+    tar: "/icons/extensions/abstract/archive.png",
 
-    png: "/file-image.png",
-    jpg: "/file-image.png",
+    png: "/icons/extensions/abstract/image.png",
+    jpg: "/icons/extensions/abstract/image.png",
 
-    ts: "/file-code.png",
-    tsx: "/file-code.png",
-    js: "/file-code.png",
-    rs: "/file-code.png",
-    py: "/file-code.png",
-    css: "/file-code.png",
+    ts: "/icons/extensions/abstract/code.png",
+    tsx: "/icons/extensions/abstract/code.png",
+    js: "/icons/extensions/abstract/code.png",
+    rs: "/icons/extensions/abstract/code.png",
+    py: "/icons/extensions/abstract/code.png",
+    css: "/icons/extensions/abstract/code.png",
 
-    md: "/file-text.png",
-    docx: "/file-text.png",
-    txt: "/file-text.png",
+    md: "/icons/extensions/abstract/text.png",
+    docx: "/icons/extensions/abstract/text.png",
+    txt: "/icons/extensions/abstract/text.png",
   },
 };

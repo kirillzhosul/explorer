@@ -5,12 +5,12 @@ export const useKeyboardHandler = () => {
 
   useEffect(() => {
     const keyDownHandler = (event: any) => {
-      //event.preventDefault();
+      event.preventDefault();
       if (heldButtons.includes(event.key)) {
         return;
       }
       setHeldButtons((prev) => {
-        return [...prev, event.key];
+        return [...new Set([...prev, event.key])];
       });
     };
 

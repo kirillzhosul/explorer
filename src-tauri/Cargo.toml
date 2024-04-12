@@ -1,7 +1,7 @@
 [package]
 name = "explorer"
-version = "0.0.1"
-description = "Windows Explorer Clone in Tauri"
+version = "0.0.0"
+description = "File manager"
 authors = ["Kirill Zhosul"]
 edition = "2021"
 
@@ -11,7 +11,7 @@ edition = "2021"
 tauri-build = { version = "1", features = [] }
 
 [dependencies]
-tauri = { version = "1", features = [ "shell-open"] }
+tauri = { version = "1", features = [] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 opener = "0.7.0"

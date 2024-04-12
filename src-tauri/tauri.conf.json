@@ -6,20 +6,16 @@
     "distDir": "../dist"
   },
   "package": {
-    "productName": "file_explorer",
+    "productName": "File Manager",
     "version": "0.0.0"
   },
   "tauri": {
     "allowlist": {
-      "all": false,
-      "shell": {
-        "all": false,
-        "open": true
-      }
+      "all": false
     },
     "windows": [
       {
-        "title": "Explorer",
+        "title": "File manager",
         "width": 800,
         "height": 600
       }

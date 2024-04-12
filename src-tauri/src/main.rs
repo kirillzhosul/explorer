@@ -3,6 +3,7 @@
 
 use disk_list;
 use opener;
+use std::fs::File;
 use std::path::Path;
 use std::process::Command;
 use std::{fs, path::PathBuf};
@@ -24,6 +25,30 @@ fn get_disk_list() -> Vec<Vec<String>> {
     disk_list::get_disk_list()
 }
 
+#[tauri::command]
+fn create_directory<'a>(path: &'a str, name: &'a str) -> Result<&'a str, String> {
+    fs::create_dir(path.to_owned() + "\\" + name).map_err(|err| err.to_string())?;
+
+    Ok(path)
+}
+
+#[tauri::command]
+fn create_text_file<'a>(path: &'a str, name: &'a str) -> Result<&'a str, String> {
+    File::create(path.to_owned() + "\\" + name).map_err(|err| err.to_string())?;
+    Ok(path)
+}
+
+#[tauri::command]
+fn delete_item<'a>(path: &'a str) -> Result<&'a str, String> {
+    let meta = fs::metadata(path).map_err(|err| err.to_string())?;
+    if meta.is_dir() {
+        fs::remove_dir_all(path).map_err(|err| err.to_string())?;
+    } else {
+        fs::remove_file(path).map_err(|err| err.to_string())?;
+    }
+
+    Ok(path)
+}
 #[tauri::command]
 fn open_terminal_in_directory(path: &str) {
     println!("Open (terminal backend): {}", path);
@@ -67,6 +92,9 @@ fn main() {
             execute_file,
             get_disk_list,
             open_terminal_in_directory,
+            delete_item,
+            create_directory,
+            create_text_file,
             get_item_info
         ])
         .run(tauri::generate_context!())

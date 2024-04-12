@@ -73,7 +73,7 @@ export function Entry({
             margin: "5px",
           }}
         >
-          <g stroke-width="1" fill-rule="evenodd">
+          <g strokeWidth="1" fillRule="evenodd">
             <g
               transform="translate(-152.000000, -879.000000)"
               fill="currentColor"

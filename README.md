@@ -16,7 +16,7 @@ Simple file explorer in style of Windows 11 built with Tauri
 - Improve layout and design, as at some point it lose style
 - Improve context menu, add new features
 - Improve selection, allow to immediately RMB to open selected context menu, allow to shift-select
-- Improve sidebar, and bookmarks system
+- Improve sidebar
 - Fix history navigation
 - Add column information (like, Windows explorer)
 - Much more

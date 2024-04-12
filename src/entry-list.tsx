@@ -21,17 +21,19 @@ export type ENTRY_LIST_ITEM_PROPS = {
   metadata?: ENTRY_LIST_ITEM_METADATA;
 };
 
+export type ENTRY_LIST_VIEW_AS = "list" | "icons" | "details";
 export type ENTRY_LIST_PROPS = {
   entries: ENTRY_LIST_ITEM_PROPS[];
+  view_as: ENTRY_LIST_VIEW_AS;
   onClick: (e: MouseEvent, entry: ENTRY_LIST_ITEM_PROPS) => any;
 };
 
-export function EntryList({ entries, onClick }: ENTRY_LIST_PROPS) {
+export function EntryList({ entries, onClick, view_as }: ENTRY_LIST_PROPS) {
   /**
    * Renderer of a list filled with entities
    */
   return (
-    <ul className="entry-list">
+    <ul className={`entry-list entry-list-view-as-${view_as}`}>
       {entries.map((entry: ENTRY_LIST_ITEM_PROPS) => (
         <li key={entry.fullPath} className="entry-list-item">
           <Entry

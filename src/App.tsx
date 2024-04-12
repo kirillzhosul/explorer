@@ -3,9 +3,19 @@ import "./App.css";
 import { invoke } from "@tauri-apps/api/tauri";
 import { SelectionFooter } from "./selection-footer";
 import { NAVIGATION_TYPE, NavigationHeader } from "./navigation-header";
-import { ENTRY_LIST_ITEM_PROPS, EntryList } from "./entry-list";
+import {
+  ENTRY_LIST_ITEM_PROPS,
+  ENTRY_LIST_VIEW_AS,
+  EntryList,
+} from "./entry-list";
 import { useEntryFilteredList } from "./use-entry-filtered-list";
-import { getItemInfo, openTerminalInDirectory, requestEntries } from "./api";
+import {
+  getItemInfo,
+  createDirectory,
+  createTextFile,
+  requestEntries,
+  deleteItem,
+} from "./api";
 import { Sidebar } from "./sidebar";
 import {
   INTERNALS_HOME,
@@ -21,6 +31,10 @@ import { useSettingsStorage } from "./settings-storage";
 function App() {
   const [path, setPath] = useState<string>(INTERNALS_HOME);
   const [selectedPaths, setSelectedPaths] = useState<string[]>([]);
+  const [selectionEntries, setSelectionEntries] = useState<
+    ENTRY_LIST_ITEM_PROPS[]
+  >([]);
+  const [viewAs, setViewAs] = useState<ENTRY_LIST_VIEW_AS>("list");
 
   const [baseSelectedPath, setBaseSelectedPath] = useState<string | undefined>(
     undefined
@@ -51,7 +65,11 @@ function App() {
     return invoke("execute_file", { path: fullPath });
   };
 
-  const handleEntryClick = (_: any, entry: ENTRY_LIST_ITEM_PROPS) => {
+  const handleEntryClick = (
+    _: any,
+    entry: ENTRY_LIST_ITEM_PROPS,
+    behavior: "sidebar-behavior" | "default-behavior"
+  ) => {
     if (
       entry.fullPath.startsWith(INTERNALS_MARK) &&
       entry.fullPath !== INTERNALS_HOME
@@ -76,7 +94,10 @@ function App() {
         executeEntry(entry.fullPath, entry);
       }
     } else if (heldButtons.includes("Shift")) {
-    } else if (heldButtons.includes("Control")) {
+    } else if (
+      behavior !== "sidebar-behavior" &&
+      heldButtons.includes("Control")
+    ) {
       if (baseSelectedPath === undefined) {
         setBaseSelectedPath(entry.fullPath);
       }
@@ -84,7 +105,9 @@ function App() {
         return [...prev, entry.fullPath];
       });
     } else {
-      setBaseSelectedPath(entry.fullPath);
+      if (behavior !== "sidebar-behavior") {
+        setBaseSelectedPath(entry.fullPath);
+      }
       setSelectedPaths([entry.fullPath]);
     }
   };
@@ -130,13 +153,17 @@ function App() {
       });
   };
 
+  const selectAll = () => {
+    setSelectedPaths(
+      filteredEntries.flatMap((entry) => {
+        return entry.fullPath;
+      })
+    );
+  };
   const contextMenuDispatcher = (type: CONTEXT_MENU_DISPATCH_TYPE) => {
     switch (type) {
       case "refresh":
         reloadEntriesFromApi(path);
-        break;
-      case "open-terminal-here":
-        openTerminalInDirectory(path).then();
         break;
       case "open":
         selectedPaths.map((path) => {
@@ -144,10 +171,21 @@ function App() {
         });
         break;
       case "delete":
+        selectedPaths.forEach((path) => {
+          deleteItem(path)
+            .then(() => reloadEntriesFromApi(path))
+            .catch(() => {});
+        });
         break;
       case "create-folder":
+        createDirectory(path, "New Folder")
+          .then(() => reloadEntriesFromApi(path))
+          .catch(() => {});
         break;
       case "create-text-file":
+        createTextFile(path, "New File.txt")
+          .then(() => reloadEntriesFromApi(path))
+          .catch(() => {});
         break;
       case "bookmark":
         setSettings({
@@ -156,12 +194,51 @@ function App() {
           ],
         });
         break;
+      case "remove-bookmark":
+        const bookmarkEntry = selectionEntries[0];
+        setSettings({
+          bookmarkedPaths: settings.bookmarkedPaths.filter((path) => {
+            return bookmarkEntry.fullPath != path;
+          }),
+        });
+        break;
+      case "view-as-icons":
+        setViewAs("icons");
+        break;
+      case "view-as-list":
+        setViewAs("list");
+        break;
+      case "view-as-details":
+        setViewAs("details");
+        break;
+      case "select-all":
+        selectAll();
+        break;
     }
     CloseContextMenu();
   };
+
+  const selectionAsEntries = async (): Promise<ENTRY_LIST_ITEM_PROPS[]> => {
+    return await Promise.all(
+      selectedPaths.map(async (path) => {
+        let itemInfo = await getItemInfo(path);
+
+        return {
+          isBookmarked: settings.bookmarkedPaths.includes(itemInfo.path),
+          isBaseSelection: baseSelectedPath === itemInfo.path,
+          isSelected: selectedPaths.includes(itemInfo.path),
+          displayName: displayBaseNameFromPath(itemInfo.path),
+          displayType: itemInfo.type_,
+          fullPath: itemInfo.path,
+        } as ENTRY_LIST_ITEM_PROPS;
+      })
+    );
+  };
+
   const displayBaseNameFromPath = (path: string) => {
     return path.split("\\").pop();
   };
+
   // Request on change path
   useEffect(() => {
     reloadEntriesFromApi(path);
@@ -182,6 +259,7 @@ function App() {
           displayName: displayInternalPath(INTERNALS_HOME),
           displayType: "dir",
           fullPath: INTERNALS_HOME,
+          isBookmarked: true,
         },
         // TODO: Uncaught error
         ...(await requestEntries(INTERNALS_HOME)).map((e: any) => {
@@ -225,19 +303,46 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (heldButtons.includes("a") && heldButtons.includes("Control")) {
-      setSelectedPaths(
-        filteredEntries.flatMap((entry) => {
-          return entry.fullPath;
-        })
-      );
+    if (heldButtons.includes("Enter")) {
+      Promise.all(
+        selectedPaths.map(async (path) => await executeEntry(path))
+      ).then(() => setSelectedPaths([]));
+    } else if (heldButtons.includes("Delete")) {
+      Promise.all(
+        selectedPaths.map(async (path) => await deleteItem(path))
+      ).then(() => setSelectedPaths([]));
     }
+    if (heldButtons.includes("Control")) {
+      if (heldButtons.includes("F5")) {
+        reloadEntriesFromApi(path);
+      } else if (heldButtons.includes("a")) {
+        selectAll();
+      } else if (heldButtons.includes("Shift")) {
+        if (heldButtons.includes("!")) {
+          setViewAs("icons");
+        }
+        if (heldButtons.includes("@")) {
+          setViewAs("list");
+        }
+        if (heldButtons.includes("#")) {
+          setViewAs("details");
+        }
+      }
+    }
+    CloseContextMenu();
   }, [heldButtons]);
+
+  useEffect(() => {
+    (async () => {
+      setSelectionEntries(await selectionAsEntries());
+    })();
+  }, [selectedPaths, settings]);
+
   return (
     <>
       <ContextMenu
         dispatcher={contextMenuDispatcher}
-        selectionExists={selectedPaths.length != 0}
+        selectionEntries={selectionEntries}
       />
       <NavigationHeader
         disabledActions={getNavigationDisabledActions(path)}
@@ -245,7 +350,10 @@ function App() {
         onNavigate={onHeaderNavigate}
       />
       <div className="app-container">
-        <Sidebar entries={sidebarEntities} onClick={handleEntryClick} />
+        <Sidebar
+          entries={sidebarEntities}
+          onClick={(e, entry) => handleEntryClick(e, entry, "sidebar-behavior")}
+        />
         <div className="content-container">
           <EntryList
             entries={filteredEntries.flatMap((entry) => {
@@ -255,7 +363,10 @@ function App() {
                 isBaseSelection: entry.fullPath === baseSelectedPath,
               };
             })}
-            onClick={handleEntryClick}
+            view_as={viewAs}
+            onClick={(e, entry) =>
+              handleEntryClick(e, entry, "default-behavior")
+            }
           />
         </div>
       </div>

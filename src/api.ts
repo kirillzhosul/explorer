@@ -13,15 +13,7 @@ type EntryDisksBackendProps = string[][];
 function toFileName(path: string): string {
   return path.replace(/^.*[\\/]/, "");
 }
-export const openTerminalInDirectory = async (path: string) => {
-  if (path.startsWith(INTERNALS_MARK)) {
-    return;
-  }
-  console.log("terminal invoked");
-  await invoke("open_terminal_in_directory", {
-    path,
-  });
-};
+
 export const getItemInfo = async (path: string): Promise<EntryBackendProps> => {
   if (path.startsWith(INTERNALS_MARK)) {
     throw Error("Tried to handle internal path that is forbidden to request!");
@@ -31,6 +23,14 @@ export const getItemInfo = async (path: string): Promise<EntryBackendProps> => {
   });
 };
 
+export const deleteItem = async (path: string): Promise<EntryBackendProps> => {
+  if (path.startsWith(INTERNALS_MARK)) {
+    throw Error("Tried to handle internal path that is forbidden to request!");
+  }
+  return await invoke("delete_item", {
+    path,
+  });
+};
 export const createTextFile = async (
   path: string,
   name: string
@@ -38,6 +38,7 @@ export const createTextFile = async (
   if (path.startsWith(INTERNALS_MARK)) {
     throw Error("Tried to handle internal path that is forbidden to request!");
   }
+
   return await invoke("create_text_file", {
     path,
     name,
@@ -53,14 +54,6 @@ export const createDirectory = async (
   return await invoke("create_directory", {
     path,
     name,
-  });
-};
-export const deleteItem = async (path: string): Promise<EntryBackendProps> => {
-  if (path.startsWith(INTERNALS_MARK)) {
-    throw Error("Tried to handle internal path that is forbidden to request!");
-  }
-  return await invoke("delete_item", {
-    path,
   });
 };
 
