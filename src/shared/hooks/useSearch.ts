@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { ITEM } from "../entities/item";
-import { searchGlob } from "./api/api";
-import { ITEM_API_DTO } from "./api/types";
-import { itemApiToItem } from "./api/converter";
+import { ITEM } from "@@entities/item";
+import { searchGlob } from "@api";
+import { ITEM_API_DTO } from "@api";
+import { itemApiToItem } from "@api";
 
 export function useSearch() {
   const [searchQuery, setSearchQuery] = useState<string>("");

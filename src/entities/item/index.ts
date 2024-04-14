@@ -1,3 +1,4 @@
-import { ITEM } from "./model";
+import { ITEM, ITEM_METADATA, ITEM_TYPE } from "./model";
 
-export type { ITEM };
+export { ITEM_TYPE };
+export type { ITEM, ITEM_METADATA };

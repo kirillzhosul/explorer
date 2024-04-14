@@ -12,11 +12,13 @@ export class LocalStorageSettingsStorage implements BaseSettingsStorage {
       hideSystem: readSettingEntry("hideSystem", false),
       hideHidden: readSettingEntry("hideHidden", false),
       pinned: readSettingEntry("pinned", []),
+      viewAs: readSettingEntry("viewAs", []),
     };
   }
 
   save(dto: SettingsDTO): void {
     saveSettingEntry("pinned", dto.pinned);
+    saveSettingEntry("viewAs", dto.viewAs);
     saveSettingEntry("hideDottedFiles", dto.hideDottedFiles);
     saveSettingEntry("displayFooter", dto.displayFooter);
     saveSettingEntry("displayIcons", dto.displayIcons);

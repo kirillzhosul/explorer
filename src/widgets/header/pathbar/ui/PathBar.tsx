@@ -1,7 +1,10 @@
+/// <reference types="vite-plugin-svgr/client" />
+import PathDividerIcon from "@svg/pathDivider.svg?react";
+
 import { useState } from "react";
 import { splitFullPath, splitFullPathForDisplay } from "..";
 import styles from "./Pathbar.module.css";
-import { PathDividerIcon } from "./icons";
+
 import clsx from "clsx";
 
 interface PATH_BAR_PROPS {

@@ -1,4 +1,4 @@
-import { SettingsDTO } from "../../../shared/settings";
+import { SettingsDTO } from "@@shared/settings";
 import styles from "./SettingsView.module.css";
 
 type SETTINGS_VIEW_PROPS = {

@@ -1,7 +1,7 @@
 import { MouseEvent } from "react";
-import { ITEM } from "../../../entities/item";
+import { ITEM } from "@@entities/item";
 import { ITEM_VIEW_AS } from "../types";
-import { Item } from "../../../entities/item/ui/Item";
+import { Item } from "@@entities/item/ui/Item";
 import clsx from "clsx";
 
 type ITEM_VIEW_PROPS = {

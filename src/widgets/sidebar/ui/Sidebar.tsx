@@ -1,6 +1,6 @@
 import { MouseEvent } from "react";
-import { Item } from "../../../entities/item/ui/Item";
-import { ITEM } from "../../../entities/item";
+import { Item } from "@@entities/item/ui/Item";
+import { ITEM } from "@@entities/item";
 
 type SIDEBAR_PROPS = {
   items: ITEM[];

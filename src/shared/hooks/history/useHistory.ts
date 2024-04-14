@@ -1,17 +1,13 @@
 import { useState } from "react";
 import { HISTORY_ACTION, HISTORY_SEGMENT } from "./types";
-import { ITEM } from "../../entities/item";
-import { NAVIGATION_ACTION_TYPE } from "../../widgets/header";
-import { INTERNALS_MARK } from "../internals";
+import { ITEM } from "@@entities/item";
+import { NAVIGATION_ACTION_TYPE } from "../../../widgets/header";
+import { INTERNALS_MARK } from "@@shared/lib/internals";
 
 export const useHistory = (size: number = 100) => {
   const [history, setHistory] = useState<HISTORY_SEGMENT[]>([]);
 
-  const pushToHistory = (
-    action: HISTORY_ACTION,
-    item?: ITEM,
-    path?: string
-  ) => {
+  const push = (action: HISTORY_ACTION, item?: ITEM, path?: string) => {
     setHistory((p) => {
       let n = [...p];
       if (item) {
@@ -74,8 +70,8 @@ export const useHistory = (size: number = 100) => {
   };
 
   return {
-    history,
-    pushToHistory,
+    items: history,
+    push,
     getNavigationDisabledActions,
     popPathNavigation,
   };

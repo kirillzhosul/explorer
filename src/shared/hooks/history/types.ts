@@ -1,4 +1,4 @@
-import { ITEM } from "../../entities/item";
+import { ITEM } from "@@entities/item";
 
 export enum HISTORY_ACTION {
   internal_open_item,

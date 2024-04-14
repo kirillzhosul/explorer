@@ -1,20 +1,19 @@
 import { useState } from "react";
-import { ITEM } from "../../entities/item";
+import { ITEM } from "@@entities/item";
 
 import {
   INTERNALS_HOME,
   INTERNALS_SETTINGS,
   displayInternalPath,
-} from "../../shared/internals";
-import { ITEM_TYPE } from "../../entities/item/model";
-import { getItemInfo } from "../../shared/api/api";
-import { itemApiToItem } from "../../shared/api/converter";
-import { requestPathWrapper } from "../../shared/api/wrapper";
+} from "@@shared/lib/internals";
+import { ITEM_TYPE } from "@@entities/item/model";
+
+import { getItemInfo, itemApiToItem, requestPathWrapper } from "@api";
 
 export function useSidebar() {
   const [items, setItems] = useState<ITEM[]>([]);
 
-  const refreshItems = async (
+  const refresh = async (
     pinned: string[],
     isSelected: (path: string) => boolean,
     isBaseSelected: (path: string) => boolean,
@@ -80,6 +79,6 @@ export function useSidebar() {
   };
   return {
     items,
-    refreshItems,
+    refresh,
   };
 }

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { mouseX, mouseY } from "../../shared/mouse";
-import { useKeyboardHandler } from "../../shared/keyboard/useKeyboardHandler";
+import { mouseX, mouseY } from "@@shared/lib/mouse";
+import { useKeyboardHandler } from "@@shared/hooks/keyboard/useKeyboardHandler";
 
 function toggleContextMenuVisible(isVisible: boolean) {
   const contextMenu = document.getElementById("context-menu");

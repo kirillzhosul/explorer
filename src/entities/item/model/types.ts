@@ -1,22 +1,24 @@
 import { ITEM_METADATA } from "./metadata";
 
-export enum ITEM_TYPE {
+// NOTICE: should match string from the API
+enum ITEM_TYPE {
   directory,
   file,
   drive,
 }
 
-export type ITEM_FLAGS = {
-  pin: boolean;
-  selection: boolean;
-  baseSelection: boolean;
-};
-
-export type ITEM = {
+type ITEM = {
   name: string;
   path: string;
   type: ITEM_TYPE;
 
-  flags: ITEM_FLAGS;
+  flags: {
+    pin: boolean;
+    selection: boolean;
+    baseSelection: boolean;
+  };
   meta?: ITEM_METADATA;
 };
+
+export { ITEM_TYPE };
+export type { ITEM };

@@ -1,5 +1,5 @@
-import { ITEM } from "../../entities/item";
-import { INTERNALS_HOME } from "../internals";
+import { ITEM } from "@@entities/item";
+import { INTERNALS_HOME } from "@@shared/lib/internals";
 import { getDiskList, listDirectory } from "./api";
 import { diskApiToItem, itemApiToItem } from "./converter";
 import { ITEM_API_DTO } from "./types";

@@ -5,6 +5,7 @@ export type SettingsDTO = {
   hideHidden: boolean;
   displayIcons: boolean;
   displayFooter: boolean;
+  viewAs: number; // TODO: Enum type
 };
 
 export type SettingsKey = keyof SettingsDTO;

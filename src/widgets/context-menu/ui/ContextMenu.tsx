@@ -1,6 +1,6 @@
 import { ContextMenuButton } from "./button";
 import { CONTEXT_MENU_ACTION_TYPE } from "../types";
-import { ITEM } from "../../../entities/item";
+import { ITEM } from "@@entities/item";
 
 type CONTEXT_MENU_PROPS = {
   dispatcher: (type: CONTEXT_MENU_ACTION_TYPE) => any;

@@ -1,8 +1,8 @@
 import { invoke } from "@tauri-apps/api";
-import { INTERNALS_MARK } from "../internals";
+import { INTERNALS_MARK } from "@@shared/lib/internals";
 import { ITEM_API_DTO } from "./types";
 
-export const getItemInfo = async (path: string): Promise<ITEM_API_DTO> => {
+const getItemInfo = async (path: string): Promise<ITEM_API_DTO> => {
   if (path.startsWith(INTERNALS_MARK)) {
     throw Error("Tried to handle internal path that is forbidden to request!");
   }
@@ -11,7 +11,7 @@ export const getItemInfo = async (path: string): Promise<ITEM_API_DTO> => {
   });
 };
 
-export const deleteItem = async (path: string): Promise<string> => {
+const deleteItem = async (path: string): Promise<string> => {
   if (path.startsWith(INTERNALS_MARK)) {
     throw Error("Tried to handle internal path that is forbidden to request!");
   }
@@ -20,7 +20,7 @@ export const deleteItem = async (path: string): Promise<string> => {
   });
 };
 
-export const createTextFile = async (
+const createTextFile = async (
   path: string,
   name: string = "New file.txt"
 ): Promise<string> => {
@@ -34,7 +34,7 @@ export const createTextFile = async (
   });
 };
 
-export const createDirectory = async (
+const createDirectory = async (
   path: string,
   name: string = "New folder"
 ): Promise<string> => {
@@ -47,7 +47,7 @@ export const createDirectory = async (
   });
 };
 
-export const executeFile = async (path: string): Promise<undefined> => {
+const executeFile = async (path: string): Promise<undefined> => {
   if (path.startsWith(INTERNALS_MARK)) {
     throw Error("Tried to handle internal path that is forbidden to request!");
   }
@@ -56,12 +56,12 @@ export const executeFile = async (path: string): Promise<undefined> => {
   });
 };
 
-export const getDiskList = async (): Promise<string[][]> => {
+const getDiskList = async (): Promise<string[][]> => {
   // TODO: typed api
   return await invoke("get_disk_list");
 };
 
-export const listDirectory = async (path: string): Promise<ITEM_API_DTO[]> => {
+const listDirectory = async (path: string): Promise<ITEM_API_DTO[]> => {
   if (path.startsWith(INTERNALS_MARK)) {
     throw Error("Tried to handle internal path that is forbidden to request!");
   }
@@ -70,13 +70,22 @@ export const listDirectory = async (path: string): Promise<ITEM_API_DTO[]> => {
   });
 };
 
-export const searchGlob = async (
-  pathWithPattern: string
-): Promise<ITEM_API_DTO[]> => {
+const searchGlob = async (pathWithPattern: string): Promise<ITEM_API_DTO[]> => {
   if (pathWithPattern.startsWith(INTERNALS_MARK)) {
     throw Error("Tried to handle internal path that is forbidden to request!");
   }
   return await invoke("search_glob", {
     pathWithPattern,
   });
+};
+
+export {
+  searchGlob,
+  listDirectory,
+  getDiskList,
+  executeFile,
+  createDirectory,
+  createTextFile,
+  deleteItem,
+  getItemInfo,
 };

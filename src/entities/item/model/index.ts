@@ -1,4 +1,5 @@
-import { ITEM_TYPE, ITEM, ITEM_FLAGS } from "./types";
+import { ITEM_METADATA } from "./metadata";
+import { ITEM_TYPE, ITEM } from "./types";
 
-export type { ITEM, ITEM_FLAGS };
 export { ITEM_TYPE };
+export type { ITEM, ITEM_METADATA };

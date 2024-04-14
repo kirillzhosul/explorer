@@ -1,4 +1,4 @@
-import { getReadableFileSizeString } from "../../../shared/size";
+import { getReadableFileSizeString } from "@@shared/lib/size";
 import styles from "./Footer.module.css";
 
 type SELECTION_FOOTER_PROPS = {

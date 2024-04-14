@@ -1,10 +1,10 @@
 import { MouseEvent } from "react";
 import { ITEM, ITEM_TYPE } from "../model";
 import clsx from "clsx";
-import { PinIcon } from "../../../shared/icons/PinIcon";
+import { PinIcon } from "@@shared/icons/PinIcon";
 import styles from "./Item.module.css";
 
-import { extensionFromPath } from "../../../shared/path";
+import { extensionFromPath } from "@@shared/lib/path";
 import { ItemIcon } from "./icon/ItemIcon";
 
 type ITEM_PROPS = {

@@ -4,7 +4,7 @@ import { PathBar } from "./pathbar";
 import { Navigation } from "./navigation";
 import { NAVIGATION_ACTION_TYPE } from ".";
 import styles from "./Header.module.css";
-import { displayBaseNameFromPath } from "../../shared/path";
+import { displayBaseNameFromPath } from "../../shared/lib/path";
 
 type NAVIGATION_HEADER_PROPS = {
   fullPath: string;

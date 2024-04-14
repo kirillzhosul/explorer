@@ -1,6 +1,12 @@
+/// <reference types="vite-plugin-svgr/client" />
+import RefreshIcon from "@svg/refresh.svg?react";
+import UpIcon from "@svg/up.svg?react";
+import ForwardIcon from "@svg/forward.svg?react";
+import BackIcon from "@svg/back.svg?react";
+
 import { NAVIGATION_ACTION_TYPE } from "..";
 import { NavigationButton } from "./button";
-import { ForwardIcon, RefreshIcon, UpIcon, BackIcon } from "./button/icons";
+
 import styles from "./Navigation.module.css";
 
 interface NAVIGATION_PROPS {

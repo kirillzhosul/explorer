@@ -1,4 +1,4 @@
-import { ITEM_TYPE } from "../../model";
+import { ITEM_TYPE } from "../entities/item/model";
 
 const _ICON_ARCHIVE = "/icons/extensions/abstract/archive.png";
 const _ICON_CODE = "/icons/extensions/abstract/code.png";

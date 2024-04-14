@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { ITEM } from "../entities/item";
-import { SettingsDTO } from "./settings";
+import { ITEM } from "@@entities/item";
+import { SettingsDTO } from "@@shared/settings";
 
 function sortPredicate(a: ITEM, b: ITEM) {
   /**

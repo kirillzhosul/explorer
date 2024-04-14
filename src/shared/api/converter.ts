@@ -1,7 +1,7 @@
-import { ITEM } from "../../entities/item";
-import { ITEM_TYPE } from "../../entities/item/model";
-import { parseWindowsAttributes } from "../attributes/windows";
-import { displayBaseNameFromPath } from "../path";
+import { ITEM } from "@@entities/item";
+import { ITEM_TYPE } from "@@entities/item/model";
+import { parseWindowsAttributes } from "@@shared/attributes/windows";
+import { displayBaseNameFromPath } from "@@shared/lib/path";
 import { ITEM_API_DTO } from "./types";
 
 export const itemApiToItem = (

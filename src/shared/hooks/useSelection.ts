@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ITEM } from "../entities/item";
+import { ITEM } from "@@entities/item";
 import { useKeyboardHandler } from "./keyboard/useKeyboardHandler";
 
 export function useSelection() {
@@ -60,10 +60,19 @@ export function useSelection() {
     return false;
   };
 
+  const handleSelectWithCallback = (
+    item: ITEM,
+    multiselect: boolean,
+    onFallthrough: (item: ITEM) => any
+  ) => {
+    if (handleSelectFallthrough(item, multiselect)) {
+      onFallthrough(item);
+    }
+  };
+
   useEffect(() => {
     const mouseUpHandle = (event: MouseEvent) => {
-      let className = (event.target as HTMLButtonElement | undefined)
-        ?.className;
+      let className = (event.target as HTMLElement | undefined)?.className;
       if (className === "app-container") {
         setSelection([]);
       }
@@ -75,12 +84,12 @@ export function useSelection() {
   }, []);
 
   return {
-    selection,
+    items: selection,
     setSelection,
     selectionBase,
     setSelectionBase,
     containsPath,
-    handleSelectFallthrough,
+    handleSelectWithCallback,
     clear,
   };
 }

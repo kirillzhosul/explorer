@@ -1,155 +1,87 @@
-import { useEffect, useState } from "react";
 import "./App.css";
-import { Header, NAVIGATION_ACTION_TYPE } from "./widgets/header";
+import { useEffect } from "react";
+import { Header } from "./widgets/header";
 import {
   INTERNALS_HOME,
   INTERNALS_MARK,
   displayInternalPath,
-} from "./shared/internals";
-
-import { useSettings } from "./shared/settings";
+} from "@@shared/lib/internals";
+import { createDirectory, createTextFile, deleteItem, executeFile } from "@api";
+import { useSettings } from "@@shared/settings";
 import { SettingsView } from "./views/settings/ui/SettingsView";
 import { Footer } from "./widgets/footer";
 import { useContextMenu } from "./widgets/context-menu/useContextMenu";
 import { CONTEXT_MENU_ACTION_TYPE } from "./widgets/context-menu";
 import { ContextMenu } from "./widgets/context-menu/ui/ContextMenu";
-import { ITEM } from "./entities/item";
-import { ITEM_TYPE } from "./entities/item/model";
-import {
-  createDirectory,
-  createTextFile,
-  deleteItem,
-  executeFile,
-} from "./shared/api/api";
+import { ITEM } from "@@entities/item";
+import { ITEM_TYPE } from "@@entities/item/model";
 import { Sidebar } from "./widgets/sidebar/ui/Sidebar";
 import { ITEM_VIEW_AS } from "./widgets/item-view/types";
 import { ItemView } from "./widgets/item-view/ui/ItemView";
-import { useHotkeys } from "./shared/keyboard/useHotkeys";
-import { HOTKEY } from "./shared/keyboard/types";
-import { useSearch } from "./shared/useSearch";
+
+import { useSearch } from "@@shared/hooks/useSearch";
 import { useSidebar } from "./widgets/sidebar/useSidebar";
-import { useSelection } from "./shared/useSelection";
-import { usePathQueryFilter } from "./shared/usePathQueryFilter";
-import { useHistory } from "./shared/history/useHistory";
-import { HISTORY_ACTION } from "./shared/history/types";
+import { useSelection } from "@@shared/hooks/useSelection";
+import { usePathQueryFilter } from "@@shared/hooks/usePathQueryFilter";
+import { navigationDispatcher } from "@@shared/dispatchers/navigationDispatcher";
+import { useHotkeys } from "@@shared/hooks/keyboard/useHotkeys";
+import { useHistory } from "@@shared/hooks/history/useHistory";
+import { HISTORY_ACTION } from "@@shared/hooks/history/types";
+import { HOTKEY } from "@@shared/hooks/keyboard/types";
 
 function App() {
-  const [viewAs, setViewAs] = useState<ITEM_VIEW_AS>(ITEM_VIEW_AS.list);
-  const { items: sidebarEntities, refreshItems: refreshSidebar } = useSidebar();
-  const { close: CloseContextMenu } = useContextMenu();
-  const {
-    selection,
-    selectionBase,
-    setSelection,
-    handleSelectFallthrough,
-    containsPath: selectionContainsPath,
-    clear: clearSelection,
-  } = useSelection();
-  const { settings, setSettings } = useSettings();
-  const { hotkey } = useHotkeys(false);
-  const { pushToHistory, getNavigationDisabledActions, popPathNavigation } =
-    useHistory();
-  const { path, setPath, requestPath, filtered, fromSettings } =
-    usePathQueryFilter(INTERNALS_HOME);
-  const { searchQuery, setSearchQuery, search, foundItems } = useSearch();
+  const sidebar = useSidebar();
+  const contextMenu = useContextMenu();
+  const hotkeys = useHotkeys(false);
+  const settings = useSettings();
+  const history = useHistory();
+  const selection = useSelection();
+  const search = useSearch();
+  const q = usePathQueryFilter(INTERNALS_HOME);
 
-  const executeItem = (path: string, item?: ITEM) => {
-    const fullPath = item ? item.path : path;
-    const displayType = item ? item.type : undefined;
-    if (displayType == ITEM_TYPE.directory || displayType == ITEM_TYPE.drive) {
-      pushToHistory(HISTORY_ACTION.internal_open_item, item);
-      return setPath(fullPath);
+  const executeItem = (item: ITEM) => {
+    if (item.type == ITEM_TYPE.directory || item.type == ITEM_TYPE.drive) {
+      history.push(HISTORY_ACTION.internal_open_item, item);
+      return q.setPath(item.path);
     }
-    if (displayType == ITEM_TYPE.file) {
-      pushToHistory(HISTORY_ACTION.execute_item, item);
-      return executeFile(fullPath);
+    if (item.type == ITEM_TYPE.file) {
+      history.push(HISTORY_ACTION.execute_item, item);
+      return executeFile(item.path);
     }
 
-    return executeFile(fullPath);
-  };
-
-  const handleEntryClick = (item: ITEM, multiselect: boolean) => {
-    if (handleSelectFallthrough(item, multiselect)) {
-      executeItem(item.path, item);
-    }
-  };
-
-  const onHeaderNavigate = (type: NAVIGATION_ACTION_TYPE) => {
-    switch (type) {
-      case NAVIGATION_ACTION_TYPE.up:
-        if (path.startsWith(INTERNALS_MARK)) {
-          return;
-        }
-        if (path.split("\\").length - 1 == 1) {
-          let newPath = path.substring(0, path.lastIndexOf("\\")) + "\\";
-          if (newPath != path) {
-            pushToHistory(
-              HISTORY_ACTION.internal_open_item,
-              undefined,
-              newPath
-            );
-            setPath(newPath);
-          } else {
-            pushToHistory(
-              HISTORY_ACTION.internal_open_item,
-              undefined,
-              INTERNALS_HOME
-            );
-            setPath(INTERNALS_HOME);
-          }
-        } else {
-          pushToHistory(HISTORY_ACTION.internal_open_item, undefined, path);
-          setPath((path) => {
-            return path.substring(0, path.lastIndexOf("\\"));
-          });
-        }
-        break;
-      case NAVIGATION_ACTION_TYPE.back:
-        setPath(popPathNavigation(path));
-        break;
-      case NAVIGATION_ACTION_TYPE.forward:
-        break;
-      case NAVIGATION_ACTION_TYPE.refresh:
-        requestPath();
-        break;
-    }
-  };
-
-  const selectAll = () => {
-    // TODO: search select
-    setSelection(filtered);
+    return executeFile(item.path);
   };
 
   const contextMenuDispatcher = (type: CONTEXT_MENU_ACTION_TYPE) => {
     switch (type) {
       case CONTEXT_MENU_ACTION_TYPE.refresh:
-        requestPath();
+        q.requestPath();
         break;
       case CONTEXT_MENU_ACTION_TYPE.open:
-        selection.forEach((entry) => {
-          executeItem(entry.path, entry);
+        selection.items.forEach((entry) => {
+          executeItem(entry);
         });
         break;
       case CONTEXT_MENU_ACTION_TYPE.delete:
-        selection.forEach((item) => {
-          deleteItem(item.path).then(requestPath);
+        selection.items.forEach((item) => {
+          deleteItem(item.path).then(q.requestPath);
         });
         break;
       case CONTEXT_MENU_ACTION_TYPE.createDirectory:
-        pushToHistory(HISTORY_ACTION.create_item, undefined, path);
-        createDirectory(path).then(requestPath);
+        history.push(HISTORY_ACTION.create_item, undefined, q.path);
+        createDirectory(q.path).then(q.requestPath);
         break;
       case CONTEXT_MENU_ACTION_TYPE.createTextFile:
-        pushToHistory(HISTORY_ACTION.create_item, undefined, path);
-        createTextFile(path).then(requestPath);
+        history.push(HISTORY_ACTION.create_item, undefined, q.path);
+        createTextFile(q.path).then(q.requestPath);
         break;
       case CONTEXT_MENU_ACTION_TYPE.pin:
-        setSettings({
-          ...settings,
+        settings.setSettings({
+          ...settings.settings,
           pinned: [
             ...new Set([
-              ...settings.pinned,
-              ...selection
+              ...settings.settings.pinned,
+              ...selection.items
                 .filter((item) => {
                   return !item.path.startsWith(INTERNALS_MARK);
                 })
@@ -160,125 +92,153 @@ function App() {
         break;
       case CONTEXT_MENU_ACTION_TYPE.unpin:
         // TODO!: Only for one
-        const bookmarkEntry = selection[0];
+        const bookmarkItem = selection.items[0];
 
-        setSettings({
-          ...settings,
-          pinned: settings.pinned.filter((path) => {
-            return bookmarkEntry.path != path;
+        settings.setSettings({
+          ...settings.settings,
+          pinned: settings.settings.pinned.filter((path) => {
+            return bookmarkItem.path != path;
           }),
         });
         break;
       case CONTEXT_MENU_ACTION_TYPE.viewAsIcons:
-        setViewAs(ITEM_VIEW_AS.icons);
+        settings.setSettings({
+          ...settings.settings,
+          viewAs: ITEM_VIEW_AS.icons,
+        });
         break;
       case CONTEXT_MENU_ACTION_TYPE.viewAsList:
-        setViewAs(ITEM_VIEW_AS.list);
+        settings.setSettings({
+          ...settings.settings,
+          viewAs: ITEM_VIEW_AS.list,
+        });
         break;
       case CONTEXT_MENU_ACTION_TYPE.selectAll:
-        selectAll();
+        selection.setSelection(q.filtered);
         break;
     }
-    CloseContextMenu();
+    contextMenu.close();
   };
 
-  useEffect(() => fromSettings(settings), [settings]);
-  useEffect(clearSelection, [path, filtered]);
+  useEffect(() => q.fromSettings(settings.settings), [settings.settings]);
+  useEffect(selection.clear, [q.path, q.filtered]);
 
   useEffect(() => {
-    search(
-      path,
-      (p) => selectionContainsPath(p),
-      (p) => selectionBase?.path === p,
-      (p) => settings.pinned.includes(p)
+    search.search(
+      q.path,
+      (p) => selection.containsPath(p),
+      (p) => selection.selectionBase?.path === p,
+      (p) => settings.settings.pinned.includes(p)
     );
-  }, [searchQuery]);
+  }, [search.searchQuery]);
 
   useEffect(() => {
     (async () => {
-      refreshSidebar(
-        settings.pinned,
-        (p) => selectionContainsPath(p),
-        (p) => selectionBase?.path === p,
-        (p) => settings.pinned.includes(p)
+      sidebar.refresh(
+        settings.settings.pinned,
+        (p) => selection.containsPath(p),
+        (p) => selection.selectionBase?.path === p,
+        (p) => settings.settings.pinned.includes(p)
       );
     })();
-  }, [settings, selection]);
+  }, [settings.settings, selection.items]);
 
   useEffect(() => {
-    switch (hotkey) {
+    switch (hotkeys.hotkey) {
       case HOTKEY.refresh:
-        requestPath();
+        q.requestPath();
         break;
       case HOTKEY.delete:
         Promise.all(
-          selection.map(async (item) => await deleteItem(item.path))
-        ).then(() => setSelection([]));
+          selection.items.map(async (item) => await deleteItem(item.path))
+        ).then(() => selection.setSelection([]));
         break;
       case HOTKEY.enter:
         Promise.all(
-          selection.map(async (item) => await executeItem(item.path, item))
-        ).then(() => setSelection([]));
+          selection.items.map(async (item) => await executeItem(item))
+        ).then(() => selection.setSelection([]));
         break;
       case HOTKEY.selectAll:
-        selectAll();
+        selection.setSelection(q.filtered);
         break;
       case HOTKEY.viewAsIcons:
-        setViewAs(ITEM_VIEW_AS.icons);
+        settings.setSettings({
+          ...settings.settings,
+          viewAs: ITEM_VIEW_AS.icons,
+        });
         break;
       case HOTKEY.viewAsList:
-        setViewAs(ITEM_VIEW_AS.list);
+        settings.setSettings({
+          ...settings.settings,
+          viewAs: ITEM_VIEW_AS.list,
+        });
         break;
     }
-  }, [hotkey]);
+  }, [hotkeys.hotkey]);
 
-  const displayEntries = searchQuery ? foundItems : filtered;
+  const displayEntries = search.searchQuery ? search.foundItems : q.filtered;
   const isInternalPage =
-    path.startsWith(INTERNALS_MARK) && path !== INTERNALS_HOME;
+    q.path.startsWith(INTERNALS_MARK) && q.path !== INTERNALS_HOME;
   return (
     <>
-      <ContextMenu dispatcher={contextMenuDispatcher} selection={selection} />
+      <ContextMenu
+        dispatcher={contextMenuDispatcher}
+        selection={selection.items}
+      />
       <Header
-        onChangePath={setPath}
-        disabledActions={getNavigationDisabledActions(path)}
-        fullPath={displayInternalPath(path)}
-        onNavigate={onHeaderNavigate}
-        onSearchInput={setSearchQuery}
+        onChangePath={q.setPath}
+        disabledActions={history.getNavigationDisabledActions(q.path)}
+        fullPath={displayInternalPath(q.path)}
+        onSearchInput={search.setSearchQuery}
+        onNavigate={(type) =>
+          navigationDispatcher(
+            type,
+            q.path,
+            history.push,
+            q.setPath,
+            history.popPathNavigation,
+            q.requestPath
+          )
+        }
       />
       <div className="app-container">
         <Sidebar
-          displayIcons={settings.displayIcons}
-          items={sidebarEntities}
-          onClick={(item) => handleEntryClick(item, false)}
+          displayIcons={settings.settings.displayIcons}
+          items={sidebar.items}
+          onClick={(item) =>
+            selection.handleSelectWithCallback(item, false, executeItem)
+          }
         />
         <div className="content-container">
           {isInternalPage && (
             <SettingsView
-              settings={settings}
-              setSettings={setSettings}
+              settings={settings.settings}
+              setSettings={settings.setSettings}
             ></SettingsView>
           )}
           {!isInternalPage && (
             <ItemView
-              displayIcons={settings.displayIcons}
+              displayIcons={settings.settings.displayIcons}
               items={displayEntries.flatMap((entry) => {
                 return {
                   ...entry,
-                  isSelected: selectionContainsPath(entry.path),
-                  isBaseSelection: entry.path === selectionBase?.path,
+                  isSelected: selection.containsPath(entry.path),
+                  isBaseSelection: entry.path === selection.selectionBase?.path,
                 };
               })}
-              viewAs={viewAs}
-              onClick={(item) => handleEntryClick(item, true)}
+              viewAs={settings.settings.viewAs}
+              onClick={(item) =>
+                selection.handleSelectWithCallback(item, true, executeItem)
+              }
             />
           )}
         </div>
       </div>
-      {settings.displayFooter && (
+      {settings.settings.displayFooter && (
         <Footer
           itemsCount={displayEntries.length}
-          selectedCount={selection.length}
-          selectionSize={selection.reduce((acc, b) => {
+          selectedCount={selection.items.length}
+          selectionSize={selection.items.reduce((acc, b) => {
             return acc + (b.meta?.size ?? 0);
           }, 0)}
         />
