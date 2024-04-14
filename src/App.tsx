@@ -219,11 +219,14 @@ function App() {
           {!isInternalPage && (
             <ItemView
               displayIcons={settings.settings.displayIcons}
-              items={displayEntries.flatMap((entry) => {
+              items={displayEntries.flatMap((item): ITEM => {
                 return {
-                  ...entry,
-                  isSelected: selection.containsPath(entry.path),
-                  isBaseSelection: entry.path === selection.selectionBase?.path,
+                  ...item,
+                  flags: {
+                    ...item.flags,
+                    selection: selection.containsPath(item.path),
+                    baseSelection: item.path === selection.selectionBase?.path,
+                  },
                 };
               })}
               viewAs={settings.settings.viewAs}
