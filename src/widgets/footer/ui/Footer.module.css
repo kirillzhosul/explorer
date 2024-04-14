@@ -1,0 +1,12 @@
+.container {
+  position: fixed;
+  bottom: 0px;
+  left: 0px;
+  background-color: #1c1c1c;
+  width: 100vw;
+}
+.row {
+  margin-left: 15px;
+  font-size: 14px;
+  color: #dddddd;
+}

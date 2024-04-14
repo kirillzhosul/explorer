@@ -1,0 +1,25 @@
+.container {
+  display: flex;
+  flex-direction: row;
+  height: 32px;
+  align-items: center;
+}
+.hotkey {
+  color: rgb(201, 201, 201);
+  border: 1px transparent;
+  margin-left: auto;
+}
+.icon {
+  margin-right: 16px;
+  width: 16px;
+  height: 16px;
+}
+.button {
+  font-weight: 300;
+  cursor: pointer;
+}
+.container:hover {
+  background-color: #373738;
+  border-radius: 5px;
+  cursor: pointer;
+}

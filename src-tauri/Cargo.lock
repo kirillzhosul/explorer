@@ -674,6 +674,7 @@ name = "explorer"
 version = "0.0.0"
 dependencies = [
  "disk_list",
+ "glob",
  "opener",
  "serde",
  "serde_json",

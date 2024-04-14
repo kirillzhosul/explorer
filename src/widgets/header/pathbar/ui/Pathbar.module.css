@@ -1,0 +1,56 @@
+.pathBar {
+  display: flex;
+  flex-direction: row;
+
+  background-color: #272d39;
+  border-radius: 5px;
+  width: 50vw;
+  padding: 5px;
+  gap: 10px;
+  font-weight: 300;
+  font-style: inherit;
+
+  min-width: 150px;
+  transition: background-color 0.05s ease-in-out, box-shadow 0.05s ease-in-out;
+  overflow: hidden;
+  text-wrap: nowrap;
+  flex-grow: 1;
+}
+.pathBarFocused {
+  background-color: #191919;
+  box-shadow: inset 0 -2px 0px #777777;
+}
+.pathBar:hover {
+  background-color: rgb(49, 55, 67);
+}
+
+.pathBarSegment {
+  display: block;
+  cursor: pointer;
+}
+.pathBarSegment:hover {
+  border-radius: 5px;
+  background-color: #272d39;
+}
+
+.pathBarCompositeSegment {
+  display: flex;
+  gap: 10px;
+}
+
+.pathBarDividerIcon {
+  color: white;
+  padding-top: 5px;
+}
+
+.pathFocus {
+  background: transparent;
+  text-align: left;
+  color: #ffffff;
+  font-size: inherit;
+  font-family: inherit;
+  font-weight: inherit;
+  outline: none;
+  border: 0;
+  width: 100%;
+}

@@ -1,0 +1,26 @@
+.container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+  padding: 5px;
+  margin: 1px;
+}
+
+.unselected:hover {
+  background-clip: padding-box;
+  background-color: #4d4d4d;
+  border-radius: 5px;
+}
+.selected {
+  background-clip: padding-box;
+  background-color: #777777;
+  border-radius: 5px;
+}
+.baseSelected {
+  border: 1px solid #777777;
+}
+
+.driveInfo {
+  margin-left: 32px;
+}

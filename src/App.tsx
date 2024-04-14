@@ -1,413 +1,255 @@
 import { useEffect, useState } from "react";
 import "./App.css";
-import { invoke } from "@tauri-apps/api/tauri";
-import { SelectionFooter } from "./selection-footer";
-import { NAVIGATION_TYPE, NavigationHeader } from "./navigation-header";
-import {
-  ENTRY_LIST_ITEM_PROPS,
-  ENTRY_LIST_VIEW_AS,
-  EntryList,
-} from "./entry-list";
-import { useEntryFilteredList } from "./use-entry-filtered-list";
-import {
-  getItemInfo,
-  createDirectory,
-  createTextFile,
-  requestEntries,
-  deleteItem,
-} from "./api";
-import { Sidebar } from "./sidebar";
+import { Header, NAVIGATION_ACTION_TYPE } from "./widgets/header";
 import {
   INTERNALS_HOME,
   INTERNALS_MARK,
-  INTERNALS_SETTINGS,
   displayInternalPath,
-} from "./internals";
-import { useHistoryNavigation } from "./use-history-navigation";
-import { useKeyboardHandler } from "./use-keyboard-handler";
-import { useContextMenu } from "./use-context-menu";
-import { CONTEXT_MENU_DISPATCH_TYPE, ContextMenu } from "./context-menu";
-import { useSettingsStorage } from "./settings-storage";
-import { SettingsView } from "./settings-view";
-import { parseWindowsAttributes } from "./attributes";
+} from "./shared/internals";
+
+import { useSettings } from "./shared/settings";
+import { SettingsView } from "./views/settings/ui/SettingsView";
+import { Footer } from "./widgets/footer";
+import { useContextMenu } from "./widgets/context-menu/useContextMenu";
+import { CONTEXT_MENU_ACTION_TYPE } from "./widgets/context-menu";
+import { ContextMenu } from "./widgets/context-menu/ui/ContextMenu";
+import { ITEM } from "./entities/item";
+import { ITEM_TYPE } from "./entities/item/model";
+import {
+  createDirectory,
+  createTextFile,
+  deleteItem,
+  executeFile,
+} from "./shared/api/api";
+import { Sidebar } from "./widgets/sidebar/ui/Sidebar";
+import { ITEM_VIEW_AS } from "./widgets/item-view/types";
+import { ItemView } from "./widgets/item-view/ui/ItemView";
+import { useHotkeys } from "./shared/keyboard/useHotkeys";
+import { HOTKEY } from "./shared/keyboard/types";
+import { useSearch } from "./shared/useSearch";
+import { useSidebar } from "./widgets/sidebar/useSidebar";
+import { useSelection } from "./shared/useSelection";
+import { usePathQueryFilter } from "./shared/usePathQueryFilter";
+import { useHistory } from "./shared/history/useHistory";
+import { HISTORY_ACTION } from "./shared/history/types";
 
 function App() {
-  const [path, setPath] = useState<string>(INTERNALS_HOME);
-  const [selectedPaths, setSelectedPaths] = useState<string[]>([]);
-  const [selectionEntries, setSelectionEntries] = useState<
-    ENTRY_LIST_ITEM_PROPS[]
-  >([]);
-  const [viewAs, setViewAs] = useState<ENTRY_LIST_VIEW_AS>("list");
-
-  const [baseSelectedPath, setBaseSelectedPath] = useState<string | undefined>(
-    undefined
-  );
-  const [sidebarEntities, setSidebarEntities] = useState<
-    ENTRY_LIST_ITEM_PROPS[]
-  >([]);
-
+  const [viewAs, setViewAs] = useState<ITEM_VIEW_AS>(ITEM_VIEW_AS.list);
+  const { items: sidebarEntities, refreshItems: refreshSidebar } = useSidebar();
   const { close: CloseContextMenu } = useContextMenu();
-  const { settings, setSettings } = useSettingsStorage();
-  const { heldButtons } = useKeyboardHandler();
+  const {
+    selection,
+    selectionBase,
+    setSelection,
+    handleSelectFallthrough,
+    containsPath: selectionContainsPath,
+    clear: clearSelection,
+  } = useSelection();
+  const { settings, setSettings } = useSettings();
+  const { hotkey } = useHotkeys(false);
   const { pushToHistory, getNavigationDisabledActions, popPathNavigation } =
-    useHistoryNavigation();
-  const { setEntries, filteredEntries, setFilters } = useEntryFilteredList();
+    useHistory();
+  const { path, setPath, requestPath, filtered, fromSettings } =
+    usePathQueryFilter(INTERNALS_HOME);
+  const { searchQuery, setSearchQuery, search, foundItems } = useSearch();
 
-  const executeEntry = (path: string, entry?: ENTRY_LIST_ITEM_PROPS) => {
-    const fullPath = entry ? entry.fullPath : path;
-    const displayType = entry ? entry.displayType : "any";
-    if (displayType == "dir" || displayType == "disk") {
-      pushToHistory("open_entry", entry);
+  const executeItem = (path: string, item?: ITEM) => {
+    const fullPath = item ? item.path : path;
+    const displayType = item ? item.type : undefined;
+    if (displayType == ITEM_TYPE.directory || displayType == ITEM_TYPE.drive) {
+      pushToHistory(HISTORY_ACTION.internal_open_item, item);
       return setPath(fullPath);
     }
-    if (displayType == "file") {
-      pushToHistory("execute_file", entry);
-      return invoke("execute_file", { path: fullPath });
+    if (displayType == ITEM_TYPE.file) {
+      pushToHistory(HISTORY_ACTION.execute_item, item);
+      return executeFile(fullPath);
     }
 
-    return invoke("execute_file", { path: fullPath });
+    return executeFile(fullPath);
   };
 
-  const handleEntryClick = (
-    _: any,
-    entry: ENTRY_LIST_ITEM_PROPS,
-    behavior: "sidebar-behavior" | "default-behavior"
-  ) => {
-    if (
-      entry.fullPath.startsWith(INTERNALS_MARK) &&
-      ![INTERNALS_HOME, INTERNALS_SETTINGS].includes(entry.fullPath)
-    ) {
-      throw Error("Tried to handle internal path");
-    }
-    if (selectedPaths.includes(entry.fullPath)) {
-      if (heldButtons.includes("Shift")) {
-        return;
-      }
-      if (heldButtons.includes("Control")) {
-        setSelectedPaths((prev) => {
-          return prev.filter((prev_path) => {
-            return prev_path != entry.fullPath;
-          });
-        });
-      } else {
-        if (selectedPaths.length > 1) {
-          setSelectedPaths([entry.fullPath]);
-          return;
-        }
-        executeEntry(entry.fullPath, entry);
-      }
-    } else if (heldButtons.includes("Shift")) {
-    } else if (
-      behavior !== "sidebar-behavior" &&
-      heldButtons.includes("Control")
-    ) {
-      if (baseSelectedPath === undefined) {
-        setBaseSelectedPath(entry.fullPath);
-      }
-      setSelectedPaths((prev) => {
-        return [...prev, entry.fullPath];
-      });
-    } else {
-      if (behavior !== "sidebar-behavior") {
-        setBaseSelectedPath(entry.fullPath);
-      }
-      setSelectedPaths([entry.fullPath]);
+  const handleEntryClick = (item: ITEM, multiselect: boolean) => {
+    if (handleSelectFallthrough(item, multiselect)) {
+      executeItem(item.path, item);
     }
   };
 
-  const onHeaderNavigate = (_: any, type: NAVIGATION_TYPE) => {
+  const onHeaderNavigate = (type: NAVIGATION_ACTION_TYPE) => {
     switch (type) {
-      case "above":
+      case NAVIGATION_ACTION_TYPE.up:
         if (path.startsWith(INTERNALS_MARK)) {
           return;
         }
         if (path.split("\\").length - 1 == 1) {
           let newPath = path.substring(0, path.lastIndexOf("\\")) + "\\";
           if (newPath != path) {
-            pushToHistory("open_entry", undefined, newPath);
+            pushToHistory(
+              HISTORY_ACTION.internal_open_item,
+              undefined,
+              newPath
+            );
             setPath(newPath);
           } else {
-            pushToHistory("open_entry", undefined, INTERNALS_HOME);
+            pushToHistory(
+              HISTORY_ACTION.internal_open_item,
+              undefined,
+              INTERNALS_HOME
+            );
             setPath(INTERNALS_HOME);
           }
         } else {
-          pushToHistory("open_entry", undefined, path);
+          pushToHistory(HISTORY_ACTION.internal_open_item, undefined, path);
           setPath((path) => {
             return path.substring(0, path.lastIndexOf("\\"));
           });
         }
         break;
-      case "back":
+      case NAVIGATION_ACTION_TYPE.back:
         setPath(popPathNavigation(path));
         break;
-      case "forward":
+      case NAVIGATION_ACTION_TYPE.forward:
         break;
-      case "reload":
-        reloadEntriesFromApi(path);
+      case NAVIGATION_ACTION_TYPE.refresh:
+        requestPath();
         break;
     }
   };
 
-  const reloadEntriesFromApi = (path: string) => {
-    requestEntries(path)
-      .then(setEntries)
-      .catch((err) => {
-        console.log(err);
-      });
+  const selectAll = () => {
+    // TODO: search select
+    setSelection(filtered);
   };
 
-  const selectAll = () => {
-    setSelectedPaths(
-      filteredEntries.flatMap((entry) => {
-        return entry.fullPath;
-      })
-    );
-  };
-  const contextMenuDispatcher = (type: CONTEXT_MENU_DISPATCH_TYPE) => {
+  const contextMenuDispatcher = (type: CONTEXT_MENU_ACTION_TYPE) => {
     switch (type) {
-      case "refresh":
-        reloadEntriesFromApi(path);
+      case CONTEXT_MENU_ACTION_TYPE.refresh:
+        requestPath();
         break;
-      case "open":
-        selectedPaths.map((path) => {
-          executeEntry(path);
+      case CONTEXT_MENU_ACTION_TYPE.open:
+        selection.forEach((entry) => {
+          executeItem(entry.path, entry);
         });
         break;
-      case "delete":
-        selectedPaths.forEach((path) => {
-          deleteItem(path)
-            .then(() => reloadEntriesFromApi(path))
-            .catch(() => {});
+      case CONTEXT_MENU_ACTION_TYPE.delete:
+        selection.forEach((item) => {
+          deleteItem(item.path).then(requestPath);
         });
         break;
-      case "create-folder":
-        createDirectory(path, "New Folder")
-          .then(() => reloadEntriesFromApi(path))
-          .catch(() => {});
+      case CONTEXT_MENU_ACTION_TYPE.createDirectory:
+        pushToHistory(HISTORY_ACTION.create_item, undefined, path);
+        createDirectory(path).then(requestPath);
         break;
-      case "create-text-file":
-        createTextFile(path, "New File.txt")
-          .then(() => reloadEntriesFromApi(path))
-          .catch(() => {});
+      case CONTEXT_MENU_ACTION_TYPE.createTextFile:
+        pushToHistory(HISTORY_ACTION.create_item, undefined, path);
+        createTextFile(path).then(requestPath);
         break;
-      case "bookmark":
+      case CONTEXT_MENU_ACTION_TYPE.pin:
         setSettings({
           ...settings,
-          bookmarkedPaths: [
+          pinned: [
             ...new Set([
-              ...settings.bookmarkedPaths,
-              ...selectedPaths.filter((path) => {
-                return !path.startsWith(INTERNALS_MARK);
-              }),
+              ...settings.pinned,
+              ...selection
+                .filter((item) => {
+                  return !item.path.startsWith(INTERNALS_MARK);
+                })
+                .flatMap((item) => item.path),
             ]),
           ],
         });
         break;
-      case "remove-bookmark":
-        const bookmarkEntry = selectionEntries[0];
+      case CONTEXT_MENU_ACTION_TYPE.unpin:
+        // TODO!: Only for one
+        const bookmarkEntry = selection[0];
 
         setSettings({
           ...settings,
-          bookmarkedPaths: settings.bookmarkedPaths.filter((path) => {
-            return bookmarkEntry.fullPath != path;
+          pinned: settings.pinned.filter((path) => {
+            return bookmarkEntry.path != path;
           }),
         });
         break;
-      case "view-as-icons":
-        setViewAs("icons");
+      case CONTEXT_MENU_ACTION_TYPE.viewAsIcons:
+        setViewAs(ITEM_VIEW_AS.icons);
         break;
-      case "view-as-list":
-        setViewAs("list");
+      case CONTEXT_MENU_ACTION_TYPE.viewAsList:
+        setViewAs(ITEM_VIEW_AS.list);
         break;
-      case "view-as-details":
-        setViewAs("details");
-        break;
-      case "select-all":
+      case CONTEXT_MENU_ACTION_TYPE.selectAll:
         selectAll();
         break;
     }
     CloseContextMenu();
   };
 
-  const selectionAsEntries = async (): Promise<ENTRY_LIST_ITEM_PROPS[]> => {
-    return await Promise.all(
-      selectedPaths.map(async (path) => {
-        if (path.startsWith(INTERNALS_MARK)) {
-          return {
-            isBookmarked: false,
-            isBaseSelection: baseSelectedPath === path,
-            isSelected: selectedPaths.includes(path),
-            displayName: displayBaseNameFromPath(path),
-            displayType: "dir",
-            fullPath: path,
-          } as ENTRY_LIST_ITEM_PROPS;
-        }
-        let itemInfo = await getItemInfo(path);
+  useEffect(() => fromSettings(settings), [settings]);
+  useEffect(clearSelection, [path, filtered]);
 
-        return {
-          isBookmarked: settings.bookmarkedPaths.includes(itemInfo.path),
-          isBaseSelection: baseSelectedPath === itemInfo.path,
-          isSelected: selectedPaths.includes(itemInfo.path),
-          displayName: displayBaseNameFromPath(itemInfo.path),
-          displayType: itemInfo.type_,
-          fullPath: itemInfo.path,
-          metadata: {
-            readonly: itemInfo.readonly,
-            attributes: {
-              windows: parseWindowsAttributes(itemInfo.attributes.windows),
-              linux: undefined,
-            },
-            fileSize: itemInfo.file_size,
-          },
-        } as ENTRY_LIST_ITEM_PROPS;
-      })
+  useEffect(() => {
+    search(
+      path,
+      (p) => selectionContainsPath(p),
+      (p) => selectionBase?.path === p,
+      (p) => settings.pinned.includes(p)
     );
-  };
-
-  const displayBaseNameFromPath = (path: string) => {
-    return path.split("\\").pop();
-  };
-
-  // Request on change path
-  useEffect(() => {
-    reloadEntriesFromApi(path);
-  }, [path]);
-
-  useEffect(() => {
-    setFilters({
-      hideDotFiles: settings.hideDottedFiles,
-      hideSystem: settings.hideSystem,
-      hideHidden: settings.hideHidden,
-    });
-  }, [settings]);
-
-  // Deselect
-  useEffect(() => {
-    setSelectedPaths([]);
-    setBaseSelectedPath(undefined);
-  }, [path, filteredEntries]);
+  }, [searchQuery]);
 
   useEffect(() => {
     (async () => {
-      setSidebarEntities([
-        // TODO: Uncaught error
-        ...(await requestEntries(INTERNALS_HOME)).map((e: any) => {
-          return { ...e, isSelected: selectedPaths.includes(e.fullPath) };
-        }),
-        ...(await Promise.all(
-          settings.bookmarkedPaths
-            .map(async (path) => {
-              try {
-                let itemInfo = await getItemInfo(path);
-
-                return {
-                  isBookmarked: true,
-                  isBaseSelection: baseSelectedPath === itemInfo.path,
-                  isSelected: selectedPaths.includes(itemInfo.path),
-                  displayName: displayBaseNameFromPath(itemInfo.path),
-                  displayType: itemInfo.type_,
-                  fullPath: itemInfo.path,
-                };
-              } catch {
-                return;
-              }
-            })
-            .filter((entry) => entry !== undefined)
-        )),
-        {
-          isBaseSelection: baseSelectedPath === INTERNALS_HOME,
-          isSelected: selectedPaths.includes(INTERNALS_HOME),
-          displayName: displayInternalPath(INTERNALS_HOME),
-          displayType: "dir",
-          fullPath: INTERNALS_HOME,
-          isBookmarked: false,
-        },
-        {
-          isBaseSelection: baseSelectedPath === INTERNALS_SETTINGS,
-          isSelected: selectedPaths.includes(INTERNALS_SETTINGS),
-          displayName: displayInternalPath(INTERNALS_SETTINGS),
-          displayType: "dir",
-          fullPath: INTERNALS_SETTINGS,
-          isBookmarked: false,
-        },
-      ]);
+      refreshSidebar(
+        settings.pinned,
+        (p) => selectionContainsPath(p),
+        (p) => selectionBase?.path === p,
+        (p) => settings.pinned.includes(p)
+      );
     })();
-  }, [settings, selectedPaths]);
+  }, [settings, selection]);
 
   useEffect(() => {
-    const mouseUpHandle = (event: MouseEvent) => {
-      let className = (event.target as HTMLButtonElement | undefined)
-        ?.className;
-      let id = (event.target as HTMLButtonElement | undefined)?.id;
-      if (className === "app-container") {
-        setSelectedPaths([]);
-      }
-      if (className !== "context-menu-button" && id !== "context-menu") {
-        event.stopPropagation();
-        CloseContextMenu();
-      }
-    };
-    document.addEventListener("mouseup", mouseUpHandle);
-    return () => {
-      document.removeEventListener("mouseup", mouseUpHandle);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (heldButtons.includes("Enter")) {
-      Promise.all(
-        selectedPaths.map(async (path) => await executeEntry(path))
-      ).then(() => setSelectedPaths([]));
-    } else if (heldButtons.includes("Delete")) {
-      Promise.all(
-        selectedPaths.map(async (path) => await deleteItem(path))
-      ).then(() => setSelectedPaths([]));
-    }
-    if (heldButtons.includes("Control")) {
-      if (heldButtons.includes("F5")) {
-        reloadEntriesFromApi(path);
-      } else if (heldButtons.includes("a")) {
+    switch (hotkey) {
+      case HOTKEY.refresh:
+        requestPath();
+        break;
+      case HOTKEY.delete:
+        Promise.all(
+          selection.map(async (item) => await deleteItem(item.path))
+        ).then(() => setSelection([]));
+        break;
+      case HOTKEY.enter:
+        Promise.all(
+          selection.map(async (item) => await executeItem(item.path, item))
+        ).then(() => setSelection([]));
+        break;
+      case HOTKEY.selectAll:
         selectAll();
-      } else if (heldButtons.includes("Shift")) {
-        if (heldButtons.includes("!")) {
-          setViewAs("icons");
-        }
-        if (heldButtons.includes("@")) {
-          setViewAs("list");
-        }
-        if (heldButtons.includes("#")) {
-          setViewAs("details");
-        }
-      }
+        break;
+      case HOTKEY.viewAsIcons:
+        setViewAs(ITEM_VIEW_AS.icons);
+        break;
+      case HOTKEY.viewAsList:
+        setViewAs(ITEM_VIEW_AS.list);
+        break;
     }
-    CloseContextMenu();
-  }, [heldButtons]);
+  }, [hotkey]);
 
-  useEffect(() => {
-    (async () => {
-      setSelectionEntries(await selectionAsEntries());
-    })();
-  }, [selectedPaths, settings]);
-
-  //console.log(selectionEntries);
+  const displayEntries = searchQuery ? foundItems : filtered;
   const isInternalPage =
     path.startsWith(INTERNALS_MARK) && path !== INTERNALS_HOME;
   return (
     <>
-      <ContextMenu
-        dispatcher={contextMenuDispatcher}
-        selectionEntries={selectionEntries}
-      />
-      <NavigationHeader
+      <ContextMenu dispatcher={contextMenuDispatcher} selection={selection} />
+      <Header
+        onChangePath={setPath}
         disabledActions={getNavigationDisabledActions(path)}
-        path={displayInternalPath(path)}
+        fullPath={displayInternalPath(path)}
         onNavigate={onHeaderNavigate}
+        onSearchInput={setSearchQuery}
       />
       <div className="app-container">
         <Sidebar
-          settings={settings}
-          entries={sidebarEntities}
-          onClick={(e, entry) => handleEntryClick(e, entry, "sidebar-behavior")}
+          displayIcons={settings.displayIcons}
+          items={sidebarEntities}
+          onClick={(item) => handleEntryClick(item, false)}
         />
         <div className="content-container">
           {isInternalPage && (
@@ -417,29 +259,27 @@ function App() {
             ></SettingsView>
           )}
           {!isInternalPage && (
-            <EntryList
-              settings={settings}
-              entries={filteredEntries.flatMap((entry) => {
+            <ItemView
+              displayIcons={settings.displayIcons}
+              items={displayEntries.flatMap((entry) => {
                 return {
                   ...entry,
-                  isSelected: selectedPaths.includes(entry.fullPath),
-                  isBaseSelection: entry.fullPath === baseSelectedPath,
+                  isSelected: selectionContainsPath(entry.path),
+                  isBaseSelection: entry.path === selectionBase?.path,
                 };
               })}
               viewAs={viewAs}
-              onClick={(e, entry) =>
-                handleEntryClick(e, entry, "default-behavior")
-              }
+              onClick={(item) => handleEntryClick(item, true)}
             />
           )}
         </div>
       </div>
       {settings.displayFooter && (
-        <SelectionFooter
-          itemsCount={filteredEntries.length}
-          selectedCount={selectedPaths.length}
-          selectionSize={selectionEntries.reduce((acc, b) => {
-            return acc + (b.metadata?.fileSize ?? 0);
+        <Footer
+          itemsCount={displayEntries.length}
+          selectedCount={selection.length}
+          selectionSize={selection.reduce((acc, b) => {
+            return acc + (b.meta?.size ?? 0);
           }, 0)}
         />
       )}

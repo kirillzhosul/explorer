@@ -1,0 +1,45 @@
+.searchIconContainer {
+  position: relative;
+  width: 0;
+  height: 0;
+}
+.searchCloseIcon {
+  position: absolute;
+  bottom: 11px;
+  left: 140px;
+  cursor: pointer;
+}
+.searchBar {
+  display: block;
+  margin-right: 10px;
+}
+.searchZoomIcon {
+  position: absolute;
+  bottom: 8px;
+  left: 170px;
+}
+.searchBarInput {
+  display: block;
+  padding: 5px;
+  background-color: #272d39;
+
+  border: 1px solid #272d39;
+  border-radius: 5px;
+
+  color: #ffffff;
+  font-size: inherit;
+  font-family: inherit;
+  text-align: left;
+
+  transition: background-color 0.05s ease-in-out, box-shadow 0.05s ease-in-out;
+}
+
+.searchBarInput:hover {
+  background-color: rgb(49, 55, 67);
+}
+
+.searchBarInput:focus {
+  background-color: #191919;
+  outline: none;
+  box-shadow: inset 0 -2px 0px #777777;
+}

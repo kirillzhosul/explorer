@@ -3,15 +3,17 @@
 
 use disk_list;
 use opener;
+use std::fs;
 use std::fs::File;
 use std::os::windows::fs::MetadataExt;
 use std::path::Path;
 use std::process::Command;
-use std::{fs, path::PathBuf};
+
+use glob::glob;
 
 #[derive(serde::Serialize)]
 struct ItemEntry<'a> {
-    path: PathBuf,
+    path: String,
     type_: &'a str,
     readonly: bool,
     attributes: ItemEntryAttributes,
@@ -65,6 +67,8 @@ fn delete_item<'a>(path: &'a str) -> Result<&'a str, String> {
 
     Ok(path)
 }
+
+//TODO! Not used anymore
 #[tauri::command]
 fn open_terminal_in_directory(path: &str) {
     println!("Open (terminal backend): {}", path);
@@ -81,14 +85,36 @@ fn get_item_info(path: &str) -> Result<ItemEntry, String> {
     let meta = fs::metadata(path).map_err(|err| err.to_string())?;
 
     Ok(ItemEntry {
-        path: Path::new(path).to_path_buf(),
-        type_: if meta.is_dir() { "dir" } else { "file" },
+        path: Path::new(path).display().to_string(),
+        type_: if meta.is_dir() { "directory" } else { "file" },
         readonly: meta.permissions().readonly(),
         attributes: ItemEntryAttributes {
             windows: meta.file_attributes(),
         },
-        file_size: 0,
+        file_size: meta.file_size(),
     })
+}
+
+#[tauri::command]
+fn search_glob(path_with_pattern: &str) -> Result<Vec<ItemEntry>, String> {
+    let mut buf = vec![];
+    let paths = glob(path_with_pattern).map_err(|err| err.to_string())?;
+    for raw_path in paths {
+        let path = raw_path.map_err(|err| err.to_string())?;
+        let path_str = path.display().to_string();
+        let meta = fs::metadata(path).map_err(|err| err.to_string())?;
+        buf.push(ItemEntry {
+            readonly: meta.permissions().readonly(),
+            path: path_str,
+            type_: if meta.is_dir() { "directory" } else { "file" },
+            attributes: ItemEntryAttributes {
+                windows: meta.file_attributes(),
+            },
+            file_size: meta.file_size(),
+        })
+    }
+
+    Ok(buf)
 }
 
 #[tauri::command]
@@ -100,8 +126,8 @@ fn list_directory(path: &str) -> Result<Vec<ItemEntry>, String> {
         let meta = entry.metadata().unwrap();
         buf.push(ItemEntry {
             readonly: meta.permissions().readonly(),
-            path: entry.path(),
-            type_: if meta.is_dir() { "dir" } else { "file" },
+            path: entry.path().display().to_string(),
+            type_: if meta.is_dir() { "directory" } else { "file" },
             attributes: ItemEntryAttributes {
                 windows: meta.file_attributes(),
             },
@@ -124,7 +150,9 @@ fn main() {
             create_text_file,
             get_item_info,
             rename_item,
-            get_windows_link_info
+            get_item_info,
+            get_windows_link_info,
+            search_glob
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
