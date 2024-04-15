@@ -13,6 +13,10 @@
     "allowlist": {
       "all": false
     },
+    "systemTray": {
+      "iconPath": "icons/icon.png",
+      "iconAsTemplate": true
+    },
     "windows": [
       {
         "title": "File manager",

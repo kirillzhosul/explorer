@@ -1,15 +1,15 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
-
 use disk_list;
+use glob::glob;
 use opener;
 use std::fs;
 use std::fs::File;
 use std::os::windows::fs::MetadataExt;
 use std::path::Path;
 use std::process::Command;
-
-use glob::glob;
+use tauri::{CustomMenuItem, Manager, SystemTrayMenu, SystemTrayMenuItem};
+use tauri::{SystemTray, SystemTrayEvent};
 
 #[derive(serde::Serialize)]
 struct ItemEntry<'a> {
@@ -139,7 +139,38 @@ fn list_directory(path: &str) -> Result<Vec<ItemEntry>, String> {
 }
 
 fn main() {
+    let quit = CustomMenuItem::new("quit".to_string(), "Quit");
+    let hide = CustomMenuItem::new("hide".to_string(), "Hide");
+
+    let menu = SystemTrayMenu::new()
+        .add_item(quit)
+        .add_native_item(SystemTrayMenuItem::Separator)
+        .add_item(hide);
+
     tauri::Builder::default()
+        .system_tray(SystemTray::new().with_menu(menu))
+        .on_window_event(|event| match event.event() {
+            tauri::WindowEvent::CloseRequested { api, .. } => {
+                event.window().hide().unwrap();
+                api.prevent_close();
+            }
+            _ => {}
+        })
+        .on_system_tray_event(|app, event| match event {
+            SystemTrayEvent::LeftClick { .. } => {
+                app.get_window("main").unwrap().show().unwrap();
+            }
+            SystemTrayEvent::MenuItemClick { id, .. } => match id.as_str() {
+                "quit" => {
+                    std::process::exit(0);
+                }
+                "hide" => {
+                    app.get_window("main").unwrap().hide().unwrap();
+                }
+                _ => {}
+            },
+            _ => {}
+        })
         .invoke_handler(tauri::generate_handler![
             list_directory,
             execute_file,
