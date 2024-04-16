@@ -30,6 +30,10 @@ React is capable of rendering (frontend), storing settings, and actually deal wi
 
 For now there is mess in the source code, main goal is to build maintainable code
 
+### How to build / run
+
+[Read that](docs/readme/HOW_TO_BUILD.md)
+
 ### Preview
 
 #### Home page
