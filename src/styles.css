@@ -1,70 +1,18 @@
 * {
   padding: 0px;
   margin: 0px;
-}
-*,
-*::before,
-*::after {
   box-sizing: border-box;
+
+  user-select: none;
+  font-weight: 300;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  color: white;
 }
+
 body {
   background-color: #191919;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  font-weight: 300;
-  color: white;
-  text-decoration: none;
-  user-select: none;
-}
-.app-container {
-  display: flex;
-  align-items: start;
-  gap: 100px;
-  height: 100%;
-  margin-top: calc(48px + 24px);
-}
-.content-container {
-  width: fit-content;
-}
-/*
-  Sidebar
-*/
-.sidebar {
-  border-right: 1px solid #fff;
-  display: flex;
-  justify-content: center;
-  padding-right: 50px;
-  height: calc(80vh);
-}
-.sidebar-list {
-  padding-left: 24px;
-  width: inherit;
-  list-style: none;
-}
-/*
-  Entry
-*/
-
-.entry-list {
-  list-style: none;
-  width: 100%;
-}
-.entry-list-view-as-items {
-  display: flex;
-  flex-direction: column;
-}
-.entry-list-view-as-icons {
-  justify-content: start;
-  align-items: start;
-  align-content: start;
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  gap: 10px;
 }
 
-/*
-  Context menu
-*/
 #context-menu {
   position: absolute;
   background-color: #2b2b2b;

@@ -1,0 +1,11 @@
+.app {
+  display: flex;
+  align-items: start;
+  gap: 100px;
+  height: 100%;
+  background-color: #191919;
+  margin-top: calc(48px + 24px);
+}
+.container {
+  width: fit-content;
+}

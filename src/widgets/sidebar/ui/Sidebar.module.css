@@ -1,0 +1,12 @@
+.container {
+  border-right: 1px solid #fff;
+  display: flex;
+  justify-content: center;
+  padding-right: 50px;
+  height: calc(80vh);
+}
+.list {
+  padding-left: 24px;
+  width: inherit;
+  list-style: none;
+}

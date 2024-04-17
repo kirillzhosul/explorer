@@ -1,0 +1,17 @@
+.container {
+  list-style: none;
+  width: 100%;
+}
+.asItems {
+  display: flex;
+  flex-direction: column;
+}
+.asIcons {
+  justify-content: start;
+  align-items: start;
+  align-content: start;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 10px;
+}

@@ -4,15 +4,16 @@ import { usePathQuery } from "./usePathQuery";
 import { useFilter } from "./useFilter";
 
 export function usePathQueryFilter(basePath: string) {
-  const { path, setPath, items, requestPath } = usePathQuery(basePath);
-  const { setItems, filtered, fromSettings } = useFilter();
+  const { path, setPath, items, requestPath, error } = usePathQuery(basePath);
+  const { setItems: setItemsToFilter, filtered, fromSettings } = useFilter();
 
-  useEffect(() => setItems(items), [items]);
+  useEffect(() => setItemsToFilter(items), [items]);
 
   return {
     path,
     setPath,
     requestPath,
+    error,
     filtered,
     fromSettings,
   };

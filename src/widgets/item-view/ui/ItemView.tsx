@@ -3,6 +3,7 @@ import { ITEM } from "@@entities/item";
 import { ITEM_VIEW_AS } from "../types";
 import { Item } from "@@entities/item/ui/Item";
 import clsx from "clsx";
+import styles from "./ItemView.module.css";
 
 type ITEM_VIEW_PROPS = {
   items: ITEM[];
@@ -20,8 +21,8 @@ export function ItemView({
   return (
     <ul
       className={clsx(
-        "entry-list",
-        `entry-list-view-as-${ITEM_VIEW_AS[viewAs]}`
+        styles.container,
+        viewAs == ITEM_VIEW_AS.icons ? styles.asIcons : styles.asItems
       )}
     >
       {items.map((item) => (

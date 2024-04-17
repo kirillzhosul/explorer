@@ -94,9 +94,7 @@ fn get_item_info(path: &str) -> Result<ItemEntry, String> {
         file_size: meta.file_size(),
     })
 }
-
-#[tauri::command]
-fn search_glob(path_with_pattern: &str) -> Result<Vec<ItemEntry>, String> {
+fn search_glob_plain_for_path(path_with_pattern: &str) -> Result<Vec<ItemEntry>, String> {
     let mut buf = vec![];
     let paths = glob(path_with_pattern).map_err(|err| err.to_string())?;
     for raw_path in paths {
@@ -115,6 +113,15 @@ fn search_glob(path_with_pattern: &str) -> Result<Vec<ItemEntry>, String> {
     }
 
     Ok(buf)
+}
+
+#[tauri::command]
+fn search_glob(path_with_pattern: &str, recurse: bool) -> Result<Vec<ItemEntry>, String> {
+    if recurse {
+        unimplemented!()
+    } else {
+        Ok(search_glob_plain_for_path(path_with_pattern).map_err(|err| err.to_string())?)
+    }
 }
 
 #[tauri::command]
@@ -138,17 +145,19 @@ fn list_directory(path: &str) -> Result<Vec<ItemEntry>, String> {
     Ok(buf)
 }
 
-fn main() {
+fn build_tray_menu() -> SystemTrayMenu {
     let quit = CustomMenuItem::new("quit".to_string(), "Quit");
     let hide = CustomMenuItem::new("hide".to_string(), "Hide");
 
-    let menu = SystemTrayMenu::new()
+    SystemTrayMenu::new()
         .add_item(quit)
         .add_native_item(SystemTrayMenuItem::Separator)
-        .add_item(hide);
+        .add_item(hide)
+}
 
+fn main() {
     tauri::Builder::default()
-        .system_tray(SystemTray::new().with_menu(menu))
+        .system_tray(SystemTray::new().with_menu(build_tray_menu()))
         .on_window_event(|event| match event.event() {
             tauri::WindowEvent::CloseRequested { api, .. } => {
                 event.window().hide().unwrap();

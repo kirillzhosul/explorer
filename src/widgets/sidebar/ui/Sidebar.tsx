@@ -1,6 +1,7 @@
 import { MouseEvent } from "react";
 import { Item } from "@@entities/item/ui/Item";
 import { ITEM } from "@@entities/item";
+import styles from "./Sidebar.module.css";
 
 type SIDEBAR_PROPS = {
   items: ITEM[];
@@ -12,11 +13,11 @@ type SIDEBAR_PROPS = {
 
 export const Sidebar = ({ items, onClick, displayIcons }: SIDEBAR_PROPS) => {
   return (
-    <div className="sidebar">
-      <ul className="sidebar-list">
+    <div className={styles.container}>
+      <ul className={styles.list}>
         {items.map((item) => {
           return (
-            <li className="sidebar-list-item" key={item.path}>
+            <li className={styles.list} key={item.path}>
               <Item item={item} icon={displayIcons} onClick={onClick} />
             </li>
           );
