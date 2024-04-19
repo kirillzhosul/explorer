@@ -9,7 +9,7 @@ type ITEM_VIEW_PROPS = {
   items: ITEM[];
   viewAs: number; // TODO
   displayIcons: boolean;
-  onClick: (item: ITEM, e: MouseEvent) => any;
+  onClick: (item: ITEM, rmb: boolean, e: MouseEvent) => any;
 };
 
 export function ItemView({

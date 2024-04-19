@@ -48,6 +48,11 @@ export const diskApiToItem = (
     meta: {
       attributes: undefined,
       size: 0,
+      drive: {
+        filesystem: disk[1],
+        left: disk[3],
+        capacity: disk[4],
+      },
     },
   };
 };

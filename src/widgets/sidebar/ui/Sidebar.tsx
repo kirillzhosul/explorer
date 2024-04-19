@@ -8,7 +8,7 @@ type SIDEBAR_PROPS = {
 
   displayIcons: boolean;
 
-  onClick: (item: ITEM, e: MouseEvent) => any;
+  onClick: (item: ITEM, rmb: boolean, e: MouseEvent) => any;
 };
 
 export const Sidebar = ({ items, onClick, displayIcons }: SIDEBAR_PROPS) => {
@@ -18,7 +18,18 @@ export const Sidebar = ({ items, onClick, displayIcons }: SIDEBAR_PROPS) => {
         {items.map((item) => {
           return (
             <li className={styles.list} key={item.path}>
-              <Item item={item} icon={displayIcons} onClick={onClick} />
+              <Item
+                item={{
+                  ...item,
+                  meta: {
+                    ...item.meta,
+                    // TODO: weird
+                    drive: undefined,
+                  },
+                }}
+                icon={displayIcons}
+                onClick={onClick}
+              />
             </li>
           );
         })}

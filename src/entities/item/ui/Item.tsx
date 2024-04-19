@@ -10,12 +10,12 @@ import { ItemIcon } from "./icon/ItemIcon";
 type ITEM_PROPS = {
   item: ITEM;
   icon: boolean;
-  onClick: (item: ITEM, e: MouseEvent) => any;
+  onClick: (item: ITEM, rmb: boolean, e: MouseEvent) => any;
 };
 
 export function Item({ item, icon, onClick }: ITEM_PROPS) {
   const withDriveInfo =
-    item.type == ITEM_TYPE.drive && item.meta?.drive !== undefined;
+    item.type === ITEM_TYPE.drive && item.meta?.drive !== undefined;
   let classNames = [styles.container];
 
   if (item.flags.selection) {
@@ -30,7 +30,10 @@ export function Item({ item, icon, onClick }: ITEM_PROPS) {
     <div
       className={clsx(...classNames)}
       onClick={(e) => {
-        onClick(item, e);
+        onClick(item, false, e);
+      }}
+      onContextMenu={(e) => {
+        onClick(item, true, e);
       }}
     >
       {icon && (

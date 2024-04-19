@@ -206,8 +206,14 @@ export function App() {
         <Sidebar
           displayIcons={settings.settings.displayIcons}
           items={sidebar.items}
-          onClick={(item) =>
-            selection.handleSelectWithCallback(item, false, executeItem)
+          onClick={(item, rmb) =>
+            selection.handleSelectWithCallback(
+              displayEntries,
+              item,
+              false,
+              executeItem,
+              rmb
+            )
           }
         />
         <div className={styles.container}>
@@ -242,8 +248,14 @@ export function App() {
                   };
                 })}
                 viewAs={settings.settings.viewAs}
-                onClick={(item) =>
-                  selection.handleSelectWithCallback(item, true, executeItem)
+                onClick={(item, rmb) =>
+                  selection.handleSelectWithCallback(
+                    displayEntries,
+                    item,
+                    true,
+                    executeItem,
+                    rmb
+                  )
                 }
               />
             </>
