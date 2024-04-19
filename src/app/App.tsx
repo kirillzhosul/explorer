@@ -231,7 +231,9 @@ export function App() {
                     color: "red",
                   }}
                 >
-                  {q.error}
+                  {typeof q.error === "string"
+                    ? q.error
+                    : "Error occured, please report a bug to developer!"}
                 </div>
               )}
               <ItemView
