@@ -24,6 +24,10 @@ For now, provides core features that explorer should provide (deal with files, s
 - Allow to have paths with external sources (SFTP/WebDAV/Predefined cloud drives)
 - More in GitHub issues...
 
+### OS support
+
+Currently, only Windows is tested and supported, Linux may come later but no guarantee
+
 ### Built stack
 
 The project is built using Tauri (React + Rust)
