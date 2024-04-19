@@ -76,8 +76,8 @@ export function useSidebar(): {
           pin: false,
 
           // TODO?: can cause bugs?
-          selection: isSelected(INTERNALS_HOME),
-          baseSelection: isBaseSelected(INTERNALS_HOME),
+          selection: isSelected(INTERNALS_SETTINGS),
+          baseSelection: isBaseSelected(INTERNALS_SETTINGS),
         },
         meta: {
           size: 0,
