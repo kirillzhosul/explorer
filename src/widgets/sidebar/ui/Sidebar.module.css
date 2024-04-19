@@ -4,9 +4,13 @@
   justify-content: center;
   padding-right: 50px;
   height: calc(80vh);
+  padding-left: 24px;
 }
 .list {
-  padding-left: 24px;
   width: inherit;
   list-style: none;
+}
+
+.divider {
+  opacity: 50%;
 }
