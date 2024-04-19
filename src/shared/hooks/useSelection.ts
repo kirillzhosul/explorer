@@ -138,8 +138,8 @@ export function useSelection() {
 
   useEffect(() => {
     const mouseUpHandle = (event: MouseEvent) => {
-      let className = (event.target as HTMLElement | undefined)?.className;
-      if (className === "app-container") {
+      let id = (event.target as HTMLElement | undefined)?.id;
+      if (id === "app-container") {
         setSelection([]);
       }
     };

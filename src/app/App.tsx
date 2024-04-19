@@ -202,7 +202,7 @@ export function App() {
           )
         }
       />
-      <div className={styles.app}>
+      <div className={styles.app} id="app-container">
         <Sidebar
           displayIcons={settings.settings.displayIcons}
           items={sidebar.items}
