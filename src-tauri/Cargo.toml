@@ -1,6 +1,6 @@
 [package]
 name = "explorer"
-version = "0.0.0"
+version = "0.0.1"
 description = "File manager"
 authors = ["Kirill Zhosul"]
 edition = "2021"

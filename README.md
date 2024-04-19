@@ -1,33 +1,37 @@
 # Explorer
 
-Simple file explorer in style of Windows 11 built with Tauri
+File explorer in style of Windows built with Tauri
+For now, provides core features that explorer should provide (deal with files, select files and etc), project is not build for big community, but if there is a lot of support within reporting issues / features I am will provide support for the project!
 
 ### Features
 
-- Home (View disk drives)
-- Files view (view files)
-- Sidebar (WIP), bookmarks
-- History and navigation (WIP)
-- Selection (WIP), select multiple items and deal with them
-- Context menu (WIP), select what to do with selected file / current directory
+- Views
+- - 'This PC' view with system drives (WIP)
+- - 'Settings' view (WIP)
+- - 'Files' view
+- Sidebar with pins
+- History (WIP)
+- Search (WIP, grep)
+- Selection (same as Windows Explorer ctrl/shift)
+- Context menu
+- Different file view styles
 
 ### TODO
 
-- Improve context menu, add new features
-- Improve selection, allow to immediately RMB to open selected context menu, allow to shift-select
-- Improve sidebar
-- Fix history navigation
-- Add column information (like, Windows explorer)
-- Much more
+- Add column information view (like, Windows explorer)
+- Add properties view
+- Allow to view content of some files
+- Allow to have paths with external sources (SFTP/WebDAV/Predefined cloud drives)
+- More in GitHub issues...
 
 ### Built stack
 
 The project is built using Tauri (React + Rust)
 
-Rust is used for backend OS interactions for now
+Rust is used for backend OS interactions for now (refactoring logic into Rust is one of next goals)
 React is capable of rendering (frontend), storing settings, and actually deal with raw data from Rust backend
 
-For now there is mess in the source code, main goal is to build maintainable code
+Main goal is to build maintainable and extendable code
 
 ### How to build / run
 
@@ -43,6 +47,10 @@ For now there is mess in the source code, main goal is to build maintainable cod
 
 ![](docs/readme/images/files.png)
 
-#### Selection and context menu (with no selection)
+#### Selection and context menu
 
 ![](docs/readme/images/selection.png)
+
+#### Settings
+
+![](docs/readme/images/settings.png)
