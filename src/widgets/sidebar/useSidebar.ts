@@ -1,14 +1,10 @@
 import { useState } from "react";
 import { ITEM } from "@@entities/item";
 
-import {
-  INTERNALS_HOME,
-  INTERNALS_SETTINGS,
-  displayInternalPath,
-} from "@@shared/lib/internals";
-import { ITEM_TYPE } from "@@entities/item/model";
+import { INTERNALS_HOME, INTERNALS_SETTINGS } from "@@shared/lib/internals";
+import { ITEM_TYPE, itemFactory } from "@@entities/item/model";
 
-import { getItemInfo, itemApiToItem, requestPathWrapper } from "@api";
+import { diskApiToItem, getDiskList, getItemInfo, itemApiToItem } from "@api";
 import { SIDEBAR_ITEMS } from "./ui/Sidebar";
 
 export function useSidebar(): {
@@ -30,12 +26,10 @@ export function useSidebar(): {
     isBaseSelected: (path: string) => boolean,
     isPinned: (path: string) => boolean
   ) => {
-    // TODO!: can be replaced with disk query?
     setDrives(
-      (await requestPathWrapper(INTERNALS_HOME)).map((item: ITEM): ITEM => {
-        item.flags.selection = isSelected(item.path);
-        return item;
-      })
+      (await getDiskList()).flatMap((r) =>
+        diskApiToItem(r, isSelected, isBaseSelected, isPinned)
+      )
     );
 
     setPins(
@@ -51,38 +45,21 @@ export function useSidebar(): {
       )
     );
 
-    // TODO! Refactor that sidebar items (defaults)
     setHome([
-      {
-        name: displayInternalPath(INTERNALS_HOME),
-        path: INTERNALS_HOME,
-        type: ITEM_TYPE.directory,
-        flags: {
-          pin: false,
-
-          // TODO?: can cause bugs?
-          selection: isSelected(INTERNALS_HOME),
-          baseSelection: isBaseSelected(INTERNALS_HOME),
-        },
-        meta: {
-          size: 0,
-        },
-      },
-      {
-        name: displayInternalPath(INTERNALS_SETTINGS),
-        path: INTERNALS_SETTINGS,
-        type: ITEM_TYPE.directory,
-        flags: {
-          pin: false,
-
-          // TODO?: can cause bugs?
-          selection: isSelected(INTERNALS_SETTINGS),
-          baseSelection: isBaseSelected(INTERNALS_SETTINGS),
-        },
-        meta: {
-          size: 0,
-        },
-      },
+      itemFactory(
+        INTERNALS_HOME,
+        ITEM_TYPE.directory,
+        undefined,
+        isSelected,
+        isBaseSelected
+      ),
+      itemFactory(
+        INTERNALS_SETTINGS,
+        ITEM_TYPE.directory,
+        undefined,
+        isSelected,
+        isBaseSelected
+      ),
     ]);
   };
 

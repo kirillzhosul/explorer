@@ -41,13 +41,26 @@ export function Item({ item, icon, onClick }: ITEM_PROPS) {
       )}
 
       <span>{item.name}</span>
-
       {item.flags.pin && <PinIcon width="12px" height="12px" />}
 
       {withDriveInfo && (
-        <span className={styles.driveInfo}>
-          {item.meta?.drive?.left} / {item.meta?.drive?.capacity}
-        </span>
+        <>
+          <span className={styles.driveInfo}></span>
+          <div className={styles.driveLoaderContainer}>
+            <div
+              className={styles.driveLoaderChildren}
+              style={{
+                width: `${
+                  (parseInt(item.meta?.drive?.left.split(" ")[0] ?? "0") /
+                    parseInt(item.meta?.drive?.capacity.split(" ")[0] ?? "0")) *
+                  100
+                }%`,
+              }}
+            >
+              {item.meta?.drive?.left} / {item.meta?.drive?.capacity}
+            </div>
+          </div>
+        </>
       )}
     </div>
   );
