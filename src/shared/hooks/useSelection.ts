@@ -92,7 +92,7 @@ export function useSelection() {
       return false;
     }
 
-    if (shift) {
+    if (shift && multiselect) {
       selectRegion(items, ...getRegionToSelect_(item));
       return false;
     }
