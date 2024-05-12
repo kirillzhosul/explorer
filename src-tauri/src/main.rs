@@ -5,7 +5,10 @@ use glob::glob;
 use opener;
 use std::fs;
 use std::fs::File;
+
+#[cfg(target_os = "windows")]
 use std::os::windows::fs::MetadataExt;
+
 use std::path::Path;
 use std::process::Command;
 use tauri::{CustomMenuItem, Manager, SystemTrayMenu, SystemTrayMenuItem};
@@ -22,6 +25,36 @@ struct ItemEntry<'a> {
 #[derive(serde::Serialize)]
 struct ItemEntryAttributes {
     windows: u32,
+    linux: u32,
+}
+
+#[cfg(target_os = "windows")]
+fn item_entry_from_os_meta(path: &Path, meta: fs::Metadata) -> ItemEntry<'static> {
+    return ItemEntry {
+        path: path.display().to_string(),
+        type_: if meta.is_dir() { "directory" } else { "file" },
+        readonly: meta.permissions().readonly(),
+        attributes: ItemEntryAttributes {
+            windows: meta.file_attributes(),
+        },
+        file_size: meta.file_size(),
+    };
+}
+
+#[cfg(target_os = "linux")]
+fn item_entry_from_os_meta(path: &Path, meta: fs::Metadata) -> ItemEntry<'static> {
+    use std::os::unix::fs::MetadataExt;
+
+    return ItemEntry {
+        path: path.display().to_string(),
+        type_: if meta.is_dir() { "directory" } else { "file" },
+        readonly: meta.permissions().readonly(),
+        attributes: ItemEntryAttributes {
+            windows: 0,
+            linux: 0,
+        },
+        file_size: meta.size(),
+    };
 }
 
 #[tauri::command]
@@ -84,32 +117,19 @@ fn open_terminal_in_directory(path: &str) {
 fn get_item_info(path: &str) -> Result<ItemEntry, String> {
     let meta = fs::metadata(path).map_err(|err| err.to_string())?;
 
-    Ok(ItemEntry {
-        path: Path::new(path).display().to_string(),
-        type_: if meta.is_dir() { "directory" } else { "file" },
-        readonly: meta.permissions().readonly(),
-        attributes: ItemEntryAttributes {
-            windows: meta.file_attributes(),
-        },
-        file_size: meta.file_size(),
-    })
+    Ok(item_entry_from_os_meta(Path::new(path), meta))
 }
+
 fn search_glob_plain_for_path(path_with_pattern: &str) -> Result<Vec<ItemEntry>, String> {
     let mut buf = vec![];
     let paths = glob(path_with_pattern).map_err(|err| err.to_string())?;
     for raw_path in paths {
         let path = raw_path.map_err(|err| err.to_string())?;
-        let path_str = path.display().to_string();
-        let meta = fs::metadata(path).map_err(|err| err.to_string())?;
-        buf.push(ItemEntry {
-            readonly: meta.permissions().readonly(),
-            path: path_str,
-            type_: if meta.is_dir() { "directory" } else { "file" },
-            attributes: ItemEntryAttributes {
-                windows: meta.file_attributes(),
-            },
-            file_size: meta.file_size(),
-        })
+
+        buf.push(item_entry_from_os_meta(
+            Path::new(&path.display().to_string()),
+            fs::metadata(path).map_err(|err| err.to_string())?,
+        ));
     }
 
     Ok(buf)
@@ -130,16 +150,11 @@ fn list_directory(path: &str) -> Result<Vec<ItemEntry>, String> {
     let entries = fs::read_dir(path).map_err(|err| err.to_string())?;
     for entry in entries {
         let entry = entry.unwrap();
-        let meta = entry.metadata().unwrap();
-        buf.push(ItemEntry {
-            readonly: meta.permissions().readonly(),
-            path: entry.path().display().to_string(),
-            type_: if meta.is_dir() { "directory" } else { "file" },
-            attributes: ItemEntryAttributes {
-                windows: meta.file_attributes(),
-            },
-            file_size: meta.file_size(),
-        })
+
+        buf.push(item_entry_from_os_meta(
+            Path::new(&entry.path().display().to_string()),
+            entry.metadata().unwrap(),
+        ));
     }
 
     Ok(buf)
