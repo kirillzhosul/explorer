@@ -1,13 +1,15 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+
+#[cfg(target_os = "windows")]
 use disk_list;
+#[cfg(target_os = "windows")]
+use std::os::windows::fs::MetadataExt;
+
 use glob::glob;
 use opener;
 use std::fs;
 use std::fs::File;
-
-#[cfg(target_os = "windows")]
-use std::os::windows::fs::MetadataExt;
 
 use std::path::Path;
 use std::process::Command;
@@ -64,6 +66,19 @@ fn execute_file(path: &str) {
 }
 
 #[tauri::command]
+#[cfg(target_os = "linux")]
+fn get_disk_list() -> Vec<Vec<String>> {
+    vec![vec![
+        "System Mount Point".to_string(),
+        "NULL".to_string(),
+        "/".to_string(),
+        "0GB".to_string(),
+        "0GB".to_string(),
+    ]]
+}
+
+#[tauri::command]
+#[cfg(target_os = "windows")]
 fn get_disk_list() -> Vec<Vec<String>> {
     disk_list::get_disk_list()
 }
