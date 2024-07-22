@@ -26,6 +26,8 @@ export function splitPath(path: string, os_path_style: OsPathStyle = OS_DEFAULT_
     Split given raw path into array of path items
   */
   if (os_path_style == OsPathStyle.posix) {
+    path = path.slice(1);
+    if (path == "") return ["/"]
     return path.split(OsPathSeparator.posix)
   }
 
@@ -50,8 +52,11 @@ export function getPathTarget(path: string, os_path_style: OsPathStyle = OS_DEFA
       a/b/c/ -> c
       a/b/c.txt -> c.txt
   */
-  if (os_path_style == OsPathStyle.posix && path == OsPathSeparator.posix) {
-    return path
+  if (os_path_style == OsPathStyle.posix) {
+    if (path == OsPathSeparator.posix) return path
+    if (path.endsWith(OsPathSeparator.posix)) {
+      path = path.slice(0, path.length - 1)
+    }
   }
 
   const segments = splitPath(path, os_path_style)
