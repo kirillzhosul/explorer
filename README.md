@@ -24,12 +24,14 @@ For now, provides core features that explorer should provide (deal with files, s
 - Allow to have paths with external sources (SFTP/WebDAV/Predefined cloud drives)
 - More in GitHub issues...
 
+
 ### OS support
 
 Currently, both Windows and Linux is tested and supported
 
 But for Linux when launching from source, you should change
 `OS_DEFAULT_PATH_STYLE_FALLBACK` in source code to posix
+and `export WEBKIT_DISABLE_DMABUF_RENDERER=1`
 
 There is no guarantee that your Linux will run this explorer fine!
 
