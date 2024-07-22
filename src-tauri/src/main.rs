@@ -11,6 +11,7 @@ use opener;
 use std::fs;
 use std::fs::File;
 
+
 use std::path::Path;
 use std::process::Command;
 use tauri::{CustomMenuItem, Manager, SystemTrayMenu, SystemTrayMenuItem};
@@ -38,6 +39,7 @@ fn item_entry_from_os_meta(path: &Path, meta: fs::Metadata) -> ItemEntry<'static
         readonly: meta.permissions().readonly(),
         attributes: ItemEntryAttributes {
             windows: meta.file_attributes(),
+            linux: 0,
         },
         file_size: meta.file_size(),
     };
@@ -209,6 +211,15 @@ fn main() {
                 _ => {}
             },
             _ => {}
+        })
+        .setup(|app| {
+            #[cfg(debug_assertions)] // only include this code on debug builds
+            {
+            let window = app.get_window("main").unwrap();
+            window.open_devtools();
+            window.close_devtools();
+            }
+            Ok(())
         })
         .invoke_handler(tauri::generate_handler![
             list_directory,
