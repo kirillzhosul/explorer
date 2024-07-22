@@ -26,7 +26,12 @@ For now, provides core features that explorer should provide (deal with files, s
 
 ### OS support
 
-Currently, only Windows is tested and supported, Linux may come later but no guarantee
+Currently, both Windows and Linux is tested and supported
+
+But for Linux when launching from source, you should change
+`OS_DEFAULT_PATH_STYLE_FALLBACK` in source code to posix
+
+There is no guarantee that your Linux will run this explorer fine!
 
 ### Built stack
 
