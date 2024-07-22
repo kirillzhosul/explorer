@@ -1,10 +1,10 @@
+import { PinIcon } from "@@shared/icons/PinIcon";
+import clsx from "clsx";
 import { MouseEvent } from "react";
 import { ITEM, ITEM_TYPE } from "../model";
-import clsx from "clsx";
-import { PinIcon } from "@@shared/icons/PinIcon";
 import styles from "./Item.module.css";
 
-import { extensionFromPath } from "@@shared/lib/path";
+import { getFileExtension } from "@@shared/lib/path";
 import { ItemIcon } from "./icon/ItemIcon";
 
 type ITEM_PROPS = {
@@ -37,7 +37,7 @@ export function Item({ item, icon, onClick }: ITEM_PROPS) {
       }}
     >
       {icon && (
-        <ItemIcon type={item.type} extension={extensionFromPath(item.name)} />
+        <ItemIcon type={item.type} extension={getFileExtension(item.name)} />
       )}
 
       <span>{item.name}</span>

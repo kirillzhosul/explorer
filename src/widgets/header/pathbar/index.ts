@@ -1,7 +1,7 @@
-import { PathBar } from "./ui";
 import {
-  splitFullPathForDisplay,
-  splitFullPath,
+  splitPath,
 } from "../../../shared/lib/path";
+import { PathBar } from "./ui";
 
-export { PathBar, splitFullPathForDisplay, splitFullPath };
+export { PathBar, splitPath };
+

@@ -2,7 +2,7 @@
 import PathDividerIcon from "@svg/pathDivider.svg?react";
 
 import { useState } from "react";
-import { splitFullPath, splitFullPathForDisplay } from "..";
+import { splitPath } from "..";
 import styles from "./Pathbar.module.css";
 
 import clsx from "clsx";
@@ -22,7 +22,9 @@ export function PathBar({ fullPath, onChangePath }: PATH_BAR_PROPS) {
   // TODO: Fix bug when go to root of the drive
   // TODO: Add icon to the sidebar
   const [focusForPath, setFocusForPath] = useState<boolean>(false);
-  const displayPath = splitFullPathForDisplay(fullPath);
+
+  // TODO: Display disk name rather than raw disk path
+  const displayPath = splitPath(fullPath);
 
   return (
     <div
@@ -64,7 +66,7 @@ export function PathBar({ fullPath, onChangePath }: PATH_BAR_PROPS) {
                 <div
                   className={styles.pathBarSegment}
                   onClick={() => {
-                    let newPath = splitFullPath(fullPath).slice(
+                    let newPath = splitPath(fullPath).slice(
                       0,
                       pathIndex + 1
                     );

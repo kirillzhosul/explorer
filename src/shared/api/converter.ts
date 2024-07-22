@@ -1,7 +1,7 @@
 import { ITEM } from "@@entities/item";
 import { ITEM_TYPE } from "@@entities/item/model";
 import { parseWindowsAttributes } from "@@shared/attributes/windows";
-import { displayBaseNameFromPath } from "@@shared/lib/path";
+import { getPathTarget } from "@@shared/lib/path";
 import { ITEM_API_DTO } from "./types";
 
 export const itemApiToItem = (
@@ -11,7 +11,7 @@ export const itemApiToItem = (
   isPinned: (path: string) => boolean = () => false
 ): ITEM => {
   return {
-    name: displayBaseNameFromPath(item.path),
+    name: getPathTarget(item.path),
     // TODO: fix?
     type: ITEM_TYPE[item.type_ as unknown as keyof typeof ITEM_TYPE],
     path: item.path,
