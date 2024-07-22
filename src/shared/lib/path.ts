@@ -18,7 +18,8 @@ export enum OsPathSeparator {
 
 // Default fallback,
 // TODO: Allow to be modified or detected
-const OS_DEFAULT_PATH_STYLE_FALLBACK = OsPathStyle.windows;
+const OS_DEFAULT_PATH_STYLE_FALLBACK = OsPathStyle.posix;
+
 
 export function splitPath(path: string, os_path_style: OsPathStyle = OS_DEFAULT_PATH_STYLE_FALLBACK): string[] {
   /*
@@ -49,6 +50,10 @@ export function getPathTarget(path: string, os_path_style: OsPathStyle = OS_DEFA
       a/b/c/ -> c
       a/b/c.txt -> c.txt
   */
+  if (os_path_style == OsPathStyle.posix && path == OsPathSeparator.posix) {
+    return path
+  }
+
   const segments = splitPath(path, os_path_style)
   const target = segments.pop()
   if (target === undefined || target === "") {
