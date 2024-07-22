@@ -1,34 +1,33 @@
-import { useEffect } from "react";
-import { Header } from "../widgets/header";
 import {
   INTERNALS_HOME,
-  INTERNALS_MARK,
-  displayInternalPath,
+  INTERNALS_MARK
 } from "@@shared/lib/internals";
+import { useEffect } from "react";
+import { Header } from "../widgets/header";
 import styles from "./App.module.css";
 
-import { createDirectory, createTextFile, deleteItem, executeFile } from "@api";
-import { useSettings } from "@@shared/settings";
-import { SettingsView } from "../views/settings/ui/SettingsView";
-import { Footer } from "../widgets/footer";
-import { useContextMenu } from "../widgets/context-menu/useContextMenu";
-import { CONTEXT_MENU_ACTION_TYPE } from "../widgets/context-menu";
-import { ContextMenu } from "../widgets/context-menu/ui/ContextMenu";
 import { ITEM } from "@@entities/item";
 import { ITEM_TYPE } from "@@entities/item/model";
-import { Sidebar } from "../widgets/sidebar/ui/Sidebar";
+import { useSettings } from "@@shared/settings";
+import { createDirectory, createTextFile, deleteItem, executeFile } from "@api";
+import { SettingsView } from "../views/settings/ui/SettingsView";
+import { CONTEXT_MENU_ACTION_TYPE } from "../widgets/context-menu";
+import { ContextMenu } from "../widgets/context-menu/ui/ContextMenu";
+import { useContextMenu } from "../widgets/context-menu/useContextMenu";
+import { Footer } from "../widgets/footer";
 import { ITEM_VIEW_AS } from "../widgets/item-view/types";
 import { ItemView } from "../widgets/item-view/ui/ItemView";
+import { Sidebar } from "../widgets/sidebar/ui/Sidebar";
 
-import { useSearch } from "@@shared/hooks/useSearch";
-import { useSidebar } from "../widgets/sidebar/useSidebar";
-import { useSelection } from "@@shared/hooks/useSelection";
-import { usePathQueryFilter } from "@@shared/hooks/usePathQueryFilter";
 import { navigationDispatcher } from "@@shared/dispatchers/navigationDispatcher";
-import { useHotkeys } from "@@shared/hooks/keyboard/useHotkeys";
-import { useHistory } from "@@shared/hooks/history/useHistory";
 import { HISTORY_ACTION } from "@@shared/hooks/history/types";
+import { useHistory } from "@@shared/hooks/history/useHistory";
 import { HOTKEY } from "@@shared/hooks/keyboard/types";
+import { useHotkeys } from "@@shared/hooks/keyboard/useHotkeys";
+import { usePathQueryFilter } from "@@shared/hooks/usePathQueryFilter";
+import { useSearch } from "@@shared/hooks/useSearch";
+import { useSelection } from "@@shared/hooks/useSelection";
+import { useSidebar } from "../widgets/sidebar/useSidebar";
 
 export function App() {
   const sidebar = useSidebar();
@@ -189,7 +188,7 @@ export function App() {
       <Header
         onChangePath={q.setPath}
         disabledActions={history.getNavigationDisabledActions(q.path)}
-        fullPath={displayInternalPath(q.path)}
+        fullPath={q.path}
         onSearchInput={search.setSearchQuery}
         onNavigate={(type) =>
           navigationDispatcher(

@@ -1,3 +1,4 @@
+import { displayInternalPath } from "@@shared/lib/internals";
 import { useState } from "react";
 import styles from "./SearchBar.module.css";
 import { CloseIcon, ZoomIcon } from "./icons";
@@ -19,7 +20,7 @@ export function SearchBar({
       <input
         className={styles.searchBarInput}
         type="text"
-        placeholder={`Search ${searchTargetDisplayName}`}
+        placeholder={`Search ${displayInternalPath(searchTargetDisplayName)}`}
         value={query}
         onInput={(e) => {
           const newQuery = e.currentTarget.value;
