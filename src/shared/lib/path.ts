@@ -54,7 +54,7 @@ export function getPathTarget(path: string, os_path_style: OsPathStyle = OS_DEFA
   */
   if (os_path_style == OsPathStyle.posix) {
     if (path == OsPathSeparator.posix) return path
-    path = path.replace(/\/+$/g, "");
+    path = path.replace(RegExp(`${OsPathSeparator.posix}+$`), "") // Replaces all trailing slashes
   }
 
   const segments = splitPath(path, os_path_style)
