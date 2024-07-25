@@ -29,9 +29,7 @@ For now, provides core features that explorer should provide (deal with files, s
 
 Currently, both Windows and Linux is tested and supported
 
-But for Linux when launching from source, you should change
-`OS_DEFAULT_PATH_STYLE_FALLBACK` in source code to posix
-and `export WEBKIT_DISABLE_DMABUF_RENDERER=1`
+For setting local environment && fixes [Read that](docs/readme/HOW_TO_BUILD.md)
 
 There is no guarantee that your Linux will run this explorer fine!
 
