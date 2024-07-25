@@ -5,7 +5,7 @@ import { useState } from "react";
 import { splitPath } from "..";
 import styles from "./Pathbar.module.css";
 
-import { displayInternalPath } from "@@shared/lib/internals";
+import { displayInternalPath, INTERNALS_MARK } from "@@shared/lib/internals";
 import clsx from "clsx";
 
 interface PATH_BAR_PROPS {
@@ -25,8 +25,8 @@ export function PathBar({ fullPath, onChangePath }: PATH_BAR_PROPS) {
   const [focusForPath, setFocusForPath] = useState<boolean>(false);
 
   // TODO: Display disk name rather than raw disk path
-  let displayPath = displayInternalPath(fullPath);
-  let displaySegments = displayPath == fullPath ? splitPath(fullPath) : [displayPath];
+  const isDisabled = fullPath.startsWith(INTERNALS_MARK)
+  const displaySegments = isDisabled ? [displayInternalPath(fullPath)] : splitPath(fullPath)
 
   return (
     <div

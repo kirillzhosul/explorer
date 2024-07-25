@@ -1,26 +1,30 @@
-import { displayInternalPath } from "@@shared/lib/internals";
+import { displayInternalPath, INTERNALS_MARK } from "@@shared/lib/internals";
+import { getPathTarget } from "@@shared/lib/path";
 import { useState } from "react";
 import styles from "./SearchBar.module.css";
 import { CloseIcon, ZoomIcon } from "./icons";
 
 interface SEARCH_BAR_PROPS {
-  searchTargetDisplayName: string;
+  searchPath: string;
   onInput: (query: string) => any;
 }
 
 export function SearchBar({
-  searchTargetDisplayName,
+  searchPath,
   onInput,
 }: SEARCH_BAR_PROPS) {
   let [query, setQuery] = useState<string>("");
 
   // TODO: Snap zoom icon correctly
+  const isDisabled = searchPath.startsWith(INTERNALS_MARK)
+  const searchTarget = isDisabled ? displayInternalPath(searchPath) : getPathTarget(searchPath)
   return (
     <div className={styles.searchBar}>
       <input
-        className={styles.searchBarInput}
+        className={isDisabled ? styles.searchBarInputDisabled : styles.searchBarInput}
         type="text"
-        placeholder={`Search ${displayInternalPath(searchTargetDisplayName)}`}
+        disabled={isDisabled}
+        placeholder={`Search ${searchTarget}`}
         value={query}
         onInput={(e) => {
           const newQuery = e.currentTarget.value;

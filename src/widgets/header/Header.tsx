@@ -1,7 +1,6 @@
 import { SearchBar } from "./search";
 
 import { NAVIGATION_ACTION_TYPE } from ".";
-import { getPathTarget } from "../../shared/lib/path";
 import styles from "./Header.module.css";
 import { Navigation } from "./navigation";
 import { PathBar } from "./pathbar";
@@ -30,7 +29,7 @@ export function Header({
       <Navigation disabledActions={disabledActions} onNavigate={onNavigate} />
       <PathBar fullPath={fullPath} onChangePath={onChangePath} />
       <SearchBar
-        searchTargetDisplayName={getPathTarget(fullPath)}
+        searchPath={fullPath}
         onInput={onSearchInput}
       />
     </div>

@@ -91,6 +91,7 @@ export function getFileExtension(path: string, os_path_style: OsPathStyle = OS_D
   return ""
 }
 
+
 const isPathSeparator = (value: string, os_path_style: OsPathStyle = OS_DEFAULT_PATH_STYLE_FALLBACK): boolean => {
   /*
     Return is given value is separator for given os path style
