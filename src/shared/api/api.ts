@@ -1,5 +1,5 @@
-import { invoke } from "@tauri-apps/api";
 import { INTERNALS_MARK } from "@@shared/lib/internals";
+import { invoke } from "@tauri-apps/api";
 import { ITEM_API_DTO } from "./types";
 
 const getItemInfo = async (path: string): Promise<ITEM_API_DTO> => {
@@ -76,16 +76,13 @@ const searchGlob = async (pathWithPattern: string): Promise<ITEM_API_DTO[]> => {
   }
   return await invoke("search_glob", {
     pathWithPattern,
+    recurse: false,
   });
 };
 
 export {
-  searchGlob,
-  listDirectory,
-  getDiskList,
-  executeFile,
   createDirectory,
   createTextFile,
-  deleteItem,
-  getItemInfo,
+  deleteItem, executeFile, getDiskList, getItemInfo, listDirectory, searchGlob
 };
+
