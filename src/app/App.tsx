@@ -27,9 +27,13 @@ import { useHotkeys } from "@@shared/hooks/keyboard/useHotkeys";
 import { usePathQueryFilter } from "@@shared/hooks/usePathQueryFilter";
 import { useSearch } from "@@shared/hooks/useSearch";
 import { useSelection } from "@@shared/hooks/useSelection";
+import { isTauriIPCSupported, TauriIPCMissing } from "@@widgets/tauriMissingIPC";
 import { useSidebar } from "../widgets/sidebar/useSidebar";
 
+
 export function App() {
+  if (!isTauriIPCSupported()) return <TauriIPCMissing />
+
   const sidebar = useSidebar();
   const contextMenu = useContextMenu();
   const hotkeys = useHotkeys(false);
