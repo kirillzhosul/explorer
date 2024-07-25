@@ -64,7 +64,7 @@ export function PathBar({ fullPath, onChangePath }: PATH_BAR_PROPS) {
           </div>
           {displaySegments.map((pathSegment, pathIndex) => {
             return (
-              <div className={styles.pathBarCompositeSegment} key={pathSegment}>
+              <div className={styles.pathBarCompositeSegment} key={pathIndex + pathSegment}>
                 <div
                   className={styles.pathBarSegment}
                   onClick={() => {
