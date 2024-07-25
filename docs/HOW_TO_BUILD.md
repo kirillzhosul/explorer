@@ -30,6 +30,9 @@ const OS_DEFAULT_PATH_STYLE_FALLBACK = OsPathStyle.windows;
 const OS_DEFAULT_PATH_STYLE_FALLBACK = OsPathStyle.posix;
 ``` 
 
+Known problems:
+- Dev tools may not appear
+
 If you have no window content, do:
 ```bash
 export WEBKIT_DISABLE_DMABUF_RENDERER=1

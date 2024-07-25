@@ -1,37 +1,31 @@
 # Explorer
 
 File explorer in style of Windows built with Tauri
-For now, provides core features that explorer should provide (deal with files, select files and etc), project is not build for big community, but if there is a lot of support within reporting issues / features I am will provide support for the project!
 
-### Features
+At current moment, project provides core features that explorer should have (deal with files, select files etc), project is not built for big community, but if there is a lot of support within reporting issues / features I am will provide support for the project!
+
+### Current Features
 
 - Views
-- - 'This PC' view with system drives (WIP)
-- - 'Settings' view (WIP)
+- - 'This PC' view with system drives
+- - 'Settings' view
 - - 'Files' view
 - Sidebar with pins
-- History (WIP)
-- Search (WIP, grep)
+- History
+- Search
 - Selection (same as Windows Explorer ctrl/shift)
 - Context menu
 - Different file view styles
 
-### TODO
+### Planned features
 
-- Add column information view (like, Windows explorer)
-- Add properties view
-- Allow to view content of some files
-- Allow to have paths with external sources (SFTP/WebDAV/Predefined cloud drives)
-- More in GitHub issues...
-
+Look into GitHub issues, or read
+[Roadmap](docs/ROADMAP.md)
 
 ### OS support
 
-Currently, both Windows and Linux is tested and supported
-
-For setting local environment && fixes [Read that](docs/readme/HOW_TO_BUILD.md)
-
-There is no guarantee that your Linux will run this explorer fine!
+Both Windows and Linux is tested and supported. \
+For local environment and fixes:  [read that](docs/HOW_TO_BUILD.md)
 
 ### Built stack
 
@@ -42,9 +36,11 @@ React is capable of rendering (frontend), storing settings, and actually deal wi
 
 Main goal is to build maintainable and extendable code
 
-### How to build / run
+### How to build / run or create dev environment 
 
-[Read that](docs/readme/HOW_TO_BUILD.md)
+Current workflow is not targeted for release-cycle (publishing releases), so best way is to test and run locally
+
+For documentation, please [read that](docs/HOW_TO_BUILD.md)
 
 ### Preview
 
