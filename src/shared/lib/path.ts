@@ -26,8 +26,10 @@ export function splitPath(path: string, os_path_style: OsPathStyle = OS_DEFAULT_
     Split given raw path into array of path items
   */
   if (os_path_style == OsPathStyle.posix) {
-    path = path.slice(1);
-    if (path == "") return ["/"]
+    if (path.startsWith(OsPathSeparator.posix)) {
+      path = path.slice(1);
+    }
+    if (path == "") return [OsPathSeparator.posix]
     return path.split(OsPathSeparator.posix)
   }
 
@@ -39,8 +41,7 @@ export function splitPath(path: string, os_path_style: OsPathStyle = OS_DEFAULT_
   return path.replace(
     OsPathSeparator.windows_drive,
     OsPathSeparator.windows
-  ).split(OsPathSeparator.windows);
-
+  ).split(OsPathSeparator.windows).filter(Boolean);
 }
 
 
@@ -59,10 +60,11 @@ export function getPathTarget(path: string, os_path_style: OsPathStyle = OS_DEFA
 
   const segments = splitPath(path, os_path_style)
   const target = segments.pop()
-  if (target === undefined || target === "") {
-    throw Error(`Tried to get target for path '${path}' but last segment is none`)
+  if (target === undefined && os_path_style == OsPathStyle.posix) {
+    return OsPathSeparator.posix;
   }
-  return target;
+
+  return target ?? "";
 }
 
 
