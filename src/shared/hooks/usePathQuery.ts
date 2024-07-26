@@ -1,15 +1,18 @@
-import { useEffect, useState } from "react";
 import { ITEM } from "@@entities/item";
+import { useEffect, useState } from "react";
 import { requestPathWrapper } from "../api/wrapper";
 
 export function usePathQuery(basePath: string) {
   const [path, setPath] = useState<string>(basePath);
   const [items, setItems] = useState<ITEM[]>([]);
-  const [error, setError] = useState<any>();
+  const [error, setError] = useState<any>(undefined);
 
   const request = () => {
     requestPathWrapper(path)
-      .then(setItems)
+      .then((data) => {
+        setError(undefined)
+        setItems(data)
+      })
       .catch((error) => {
         console.log(
           "[usePathQuery] Got request error, items wiped, error was set!",

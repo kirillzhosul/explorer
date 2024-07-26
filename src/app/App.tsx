@@ -228,7 +228,7 @@ export function App() {
           )}
           {!isInternalPage && (
             <>
-              {!q.path.startsWith(INTERNALS_MARK) && q.error && (
+              {q.error && (
                 <div
                   style={{
                     color: "red",
@@ -237,30 +237,33 @@ export function App() {
                   {q.error}
                 </div>
               )}
-              <ItemView
-                displayIcons={settings.settings.displayIcons}
-                items={displayEntries.flatMap((item): ITEM => {
-                  return {
-                    ...item,
-                    flags: {
-                      ...item.flags,
-                      selection: selection.containsPath(item.path),
-                      baseSelection:
-                        item.path === selection.selectionBase?.path,
-                    },
-                  };
-                })}
-                viewAs={settings.settings.viewAs}
-                onClick={(item, rmb) =>
-                  selection.handleSelectWithCallback(
-                    displayEntries,
-                    item,
-                    true,
-                    executeItem,
-                    rmb
-                  )
-                }
-              />
+
+              {!q.error && (
+                <ItemView
+                  displayIcons={settings.settings.displayIcons}
+                  items={displayEntries.flatMap((item): ITEM => {
+                    return {
+                      ...item,
+                      flags: {
+                        ...item.flags,
+                        selection: selection.containsPath(item.path),
+                        baseSelection:
+                          item.path === selection.selectionBase?.path,
+                      },
+                    };
+                  })}
+                  viewAs={settings.settings.viewAs}
+                  onClick={(item, rmb) =>
+                    selection.handleSelectWithCallback(
+                      displayEntries,
+                      item,
+                      true,
+                      executeItem,
+                      rmb
+                    )
+                  }
+                />
+              )}
             </>
           )}
         </div>
