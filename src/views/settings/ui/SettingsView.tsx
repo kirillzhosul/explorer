@@ -69,6 +69,9 @@ function Settings({ setSettings, settings }: SETTINGS_VIEW_PROPS) {
       <ToggleSettings field={"displayFooter"} {...toggleProps}>
         Display footer
       </ToggleSettings>
+      <ToggleSettings field={"displaySizeAsSI"} {...toggleProps}>
+        Display sizes as SI (KiB/KB)
+      </ToggleSettings>
     </div>
   );
 }

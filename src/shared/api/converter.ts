@@ -2,6 +2,7 @@ import { ITEM } from "@@entities/item";
 import { ITEM_TYPE } from "@@entities/item/model";
 import { parseWindowsAttributes } from "@@shared/attributes/windows";
 import { getPathTarget } from "@@shared/lib/path";
+import { getFileSizeFromReadableSizeString } from "@@shared/lib/size";
 import { ITEM_API_DTO } from "./types";
 
 export const itemApiToItem = (
@@ -50,8 +51,8 @@ export const diskApiToItem = (
       size: 0,
       drive: {
         filesystem: disk[1],
-        left: disk[3],
-        capacity: disk[4],
+        left: getFileSizeFromReadableSizeString(disk[3]),
+        capacity: getFileSizeFromReadableSizeString(disk[4]),
       },
     },
   };

@@ -13,6 +13,7 @@ export class LocalStorageSettingsStorage implements BaseSettingsStorage {
       hideHidden: readSettingEntry("hideHidden", false),
       pinned: readSettingEntry("pinned", []),
       viewAs: readSettingEntry("viewAs", []),
+      displaySizeAsSI: readSettingEntry("displaySizeAsSI", true)
     };
   }
 
@@ -24,5 +25,6 @@ export class LocalStorageSettingsStorage implements BaseSettingsStorage {
     saveSettingEntry("displayIcons", dto.displayIcons);
     saveSettingEntry("hideSystem", dto.hideSystem);
     saveSettingEntry("hideHidden", dto.hideHidden);
+    saveSettingEntry("displaySizeAsSI", dto.displaySizeAsSI);
   }
 }

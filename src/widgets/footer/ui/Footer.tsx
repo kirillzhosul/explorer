@@ -5,12 +5,14 @@ type SELECTION_FOOTER_PROPS = {
   itemsCount: number;
   selectedCount: number;
   selectionSize: number;
+  selectionSizeAsSI: boolean
 };
 
 export function Footer({
   itemsCount,
   selectedCount,
   selectionSize,
+  selectionSizeAsSI
 }: SELECTION_FOOTER_PROPS) {
   return (
     <div className={styles.container}>
@@ -19,7 +21,7 @@ export function Footer({
         {selectedCount > 0 && (
           <>
             | {selectedCount} items selected{" "}
-            {getReadableFileSizeString(selectionSize)} |
+            {getReadableFileSizeString(selectionSize, selectionSizeAsSI)} |
           </>
         )}
       </span>
