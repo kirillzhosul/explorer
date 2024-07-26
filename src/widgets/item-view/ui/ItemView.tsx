@@ -25,11 +25,11 @@ export function ItemView({
         viewAs == ITEM_VIEW_AS.icons ? styles.asIcons : styles.asItems
       )}
     >
-      {items.map((item) => (
+      {items.length ? items.map((item) => (
         <li key={item.path} className="entry-list-item">
           <Item item={item} icon={displayIcons} onClick={onClick} />
         </li>
-      ))}
+      )) : <p>This directory is empty.</p>}
     </ul>
   );
 }
