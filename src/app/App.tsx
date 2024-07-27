@@ -187,6 +187,7 @@ export function App() {
     <>
       <ContextMenu
         dispatcher={contextMenuDispatcher}
+        path={q.path}
         selection={selection.items}
       />
       <Header
