@@ -1,5 +1,5 @@
 import { ITEM } from "@@entities/item";
-import { INTERNALS_MARK } from "@@shared/lib/internals";
+import { INTERNALS_HOME, INTERNALS_MARK } from "@@shared/lib/internals";
 import { useEffect, useState } from "react";
 import { requestPathWrapper } from "../api/wrapper";
 
@@ -9,7 +9,7 @@ export function usePathQuery(basePath: string) {
   const [error, setError] = useState<any>(undefined);
 
   const request = () => {
-    if (path.startsWith(INTERNALS_MARK)) {
+    if (path.startsWith(INTERNALS_MARK) && path !== INTERNALS_HOME) {
       setItems([]);
       setError(undefined);
       return;
