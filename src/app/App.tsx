@@ -276,6 +276,7 @@ export function App() {
           selectionSize={selection.items.reduce((acc, b) => {
             return acc + (b.meta?.size ?? 0);
           }, 0)}
+          selectionSizeAsSI={settings.settings.displaySizeAsSI}
         />
       )}
     </>

@@ -5,6 +5,7 @@ import { ITEM, ITEM_TYPE } from "../model";
 import styles from "./Item.module.css";
 
 import { getFileExtension } from "@@shared/lib/path";
+import { getReadableFileSizeString } from "@@shared/lib/size";
 import { ItemIcon } from "./icon/ItemIcon";
 
 type ITEM_PROPS = {
@@ -14,8 +15,6 @@ type ITEM_PROPS = {
 };
 
 export function Item({ item, icon, onClick }: ITEM_PROPS) {
-  const withDriveInfo =
-    item.type === ITEM_TYPE.drive && item.meta?.drive !== undefined;
   let classNames = [styles.container];
 
   if (item.flags.selection) {
@@ -44,9 +43,9 @@ export function Item({ item, icon, onClick }: ITEM_PROPS) {
 
       {item.flags.pin && <PinIcon width="12px" height="12px" />}
 
-      {withDriveInfo && (
+      {item.type === ITEM_TYPE.drive && item.meta?.drive && (
         <span className={styles.driveInfo}>
-          {item.meta?.drive?.left} / {item.meta?.drive?.capacity}
+          {getReadableFileSizeString(item.meta?.drive?.left, false)} / {getReadableFileSizeString(item.meta?.drive?.capacity, false)}
         </span>
       )}
     </div>

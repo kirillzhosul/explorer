@@ -4,8 +4,9 @@ export type ITEM_METADATA = {
   attributes?: WINDOWS_ATTRIBUTES;
   drive?: {
     filesystem: string;
-    capacity: string;
-    left: string;
+    // As bytes
+    capacity: number;
+    left: number;
   };
 
   // Only refers to the file size, otherwise will be zero

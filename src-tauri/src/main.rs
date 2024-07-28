@@ -74,8 +74,8 @@ fn get_disk_list() -> Vec<Vec<String>> {
         "System Mount Point".to_string(),
         "NULL".to_string(),
         "/".to_string(),
-        "0GB".to_string(),
-        "0GB".to_string(),
+        "0 GB".to_string(),
+        "0 GB".to_string(),
     ]]
 }
 
