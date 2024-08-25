@@ -18,7 +18,7 @@ export enum OsPathSeparator {
 
 // Default fallback,
 // TODO: Allow to be modified or detected
-const OS_DEFAULT_PATH_STYLE_FALLBACK = OsPathStyle.windows;
+export const OS_DEFAULT_PATH_STYLE_FALLBACK = OsPathStyle.posix;
 
 
 export function splitPath(path: string, os_path_style: OsPathStyle = OS_DEFAULT_PATH_STYLE_FALLBACK): string[] {

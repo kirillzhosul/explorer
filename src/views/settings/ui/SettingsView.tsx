@@ -1,4 +1,5 @@
 import { VERSION } from "@@shared/consts";
+import { OS_DEFAULT_PATH_STYLE_FALLBACK, OsPathStyle } from "@@shared/lib/path";
 import { SettingsDTO } from "@@shared/settings";
 import styles from "./SettingsView.module.css";
 
@@ -15,6 +16,9 @@ function About() {
       <p>Version: {VERSION}</p>
       <p>License: MIT</p>
       <p>Author: Kirill Zhosul</p>
+
+      <div className={styles.header}>Developer section</div>
+      <p>OS path style: <code>{OS_DEFAULT_PATH_STYLE_FALLBACK == OsPathStyle.posix ? "posix-like" : "windows-like"}</code></p>
     </div>
   );
 }
