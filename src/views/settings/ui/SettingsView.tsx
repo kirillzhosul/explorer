@@ -1,3 +1,4 @@
+import { VERSION } from "@@shared/consts";
 import { SettingsDTO } from "@@shared/settings";
 import styles from "./SettingsView.module.css";
 
@@ -11,7 +12,7 @@ function About() {
     <div className={styles.about}>
       <div className={styles.header}>About this application</div>
 
-      <p>Version: 0.0.0</p>
+      <p>Version: {VERSION}</p>
       <p>License: MIT</p>
       <p>Author: Kirill Zhosul</p>
     </div>
