@@ -1,6 +1,6 @@
 import { INTERNALS_MARK } from "@@shared/lib/internals";
 import { invoke } from "@tauri-apps/api";
-import { ITEM_API_DTO } from "./types";
+import { INITIAL_PARAMS, ITEM_API_DTO } from "./types";
 
 const getItemInfo = async (path: string): Promise<ITEM_API_DTO> => {
   if (path.startsWith(INTERNALS_MARK)) {
@@ -9,6 +9,10 @@ const getItemInfo = async (path: string): Promise<ITEM_API_DTO> => {
   return await invoke("get_item_info", {
     path,
   });
+};
+
+const queryInitialParams = async (): Promise<INITIAL_PARAMS> => {
+  return await invoke("query_initial_params", {});
 };
 
 const deleteItem = async (path: string): Promise<string> => {
@@ -83,6 +87,11 @@ const searchGlob = async (pathWithPattern: string): Promise<ITEM_API_DTO[]> => {
 export {
   createDirectory,
   createTextFile,
-  deleteItem, executeFile, getDiskList, getItemInfo, listDirectory, searchGlob
+  deleteItem,
+  executeFile,
+  getDiskList,
+  getItemInfo,
+  listDirectory,
+  queryInitialParams,
+  searchGlob,
 };
-

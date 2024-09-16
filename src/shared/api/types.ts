@@ -7,3 +7,7 @@ export type ITEM_API_DTO = {
   };
   file_size: number;
 };
+
+export type INITIAL_PARAMS = {
+  fs_path_style: "unix" | "windows";
+};

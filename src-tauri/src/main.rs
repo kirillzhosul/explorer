@@ -6,11 +6,13 @@ use disk_list;
 #[cfg(target_os = "windows")]
 use std::os::windows::fs::MetadataExt;
 
+mod application_state;
+mod initial_params;
+
 use glob::glob;
 use opener;
 use std::fs;
 use std::fs::File;
-
 
 use std::path::Path;
 use std::process::Command;
@@ -215,9 +217,9 @@ fn main() {
         .setup(|app| {
             #[cfg(debug_assertions)] // only include this code on debug builds
             {
-            let window = app.get_window("main").unwrap();
-            window.open_devtools();
-            window.close_devtools();
+                let window = app.get_window("main").unwrap();
+                window.open_devtools();
+                window.close_devtools();
             }
             Ok(())
         })
@@ -233,7 +235,8 @@ fn main() {
             rename_item,
             get_item_info,
             get_windows_link_info,
-            search_glob
+            search_glob,
+            initial_params::query_initial_params
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
