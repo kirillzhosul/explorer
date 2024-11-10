@@ -63,6 +63,21 @@ fn item_entry_from_os_meta(path: &Path, meta: fs::Metadata) -> ItemEntry<'static
     };
 }
 
+#[cfg(target_os = "macos")]
+fn item_entry_from_os_meta(path: &Path, meta: fs::Metadata) -> ItemEntry<'static> {
+
+    return ItemEntry {
+        path: path.display().to_string(),
+        type_: if meta.is_dir() { "directory" } else { "file" },
+        readonly: meta.permissions().readonly(),
+        attributes: ItemEntryAttributes {
+            windows: 0,
+            linux: 0,
+        },
+        file_size: 0,
+    };
+
+}
 #[tauri::command]
 fn execute_file(path: &str) {
     println!("Open (backend): {}", path);
@@ -87,6 +102,18 @@ fn get_disk_list() -> Vec<Vec<String>> {
     disk_list::get_disk_list()
 }
 
+
+#[tauri::command]
+#[cfg(target_os = "macos")]
+fn get_disk_list() -> Vec<Vec<String>> {
+    vec![vec![
+        "System Mount Point".to_string(),
+        "NULL".to_string(),
+        "/".to_string(),
+        "0GB".to_string(),
+        "0GB".to_string(),
+    ]]
+}
 // TODO: Implement
 #[tauri::command]
 fn get_windows_link_info() {}
