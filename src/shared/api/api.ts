@@ -2,6 +2,8 @@ import { INTERNALS_MARK } from "@@shared/lib/internals";
 import { invoke } from "@tauri-apps/api";
 import { ITEM_API_DTO } from "./types";
 
+const EXPERIMENTAL_IPC_MOCKING_FEATURE = false;
+
 interface BackendProvider {
   /**
    * Provider protocol for internal backend calls.
@@ -10,7 +12,7 @@ interface BackendProvider {
   /**
    * Acquire information about entry (file / directory) by its path
    */
-  getItemInfo(path: string): Promise<ITEM_API_DTO>;
+  getItemInfo(path: string): Promise<ITEM_API_DTO | null>;
   deleteItem(path: string): Promise<string>;
   createTextFile(path: string, name: string): Promise<string>;
   createDirectory(path: string, name: string): Promise<string>;
@@ -110,9 +112,55 @@ class IPCBackendProvider implements BackendProvider {
     });
   }
 }
+class MockBackendProvider implements BackendProvider {
+  async getItemInfo(path: string): Promise<ITEM_API_DTO | null> {
+    return null;
+  }
 
-function getBackendProvider(): BackendProvider {
-  return new IPCBackendProvider();
+  async deleteItem(path: string): Promise<string> {
+    return path;
+  }
+
+  async createTextFile(path: string, name: string): Promise<string> {
+    return name;
+  }
+
+  async createDirectory(
+    path: string,
+    name: string = "New folder"
+  ): Promise<string> {
+    return name;
+  }
+
+  async executeFile(path: string): Promise<undefined> {
+    return undefined;
+  }
+
+  async getDiskList(): Promise<string[][]> {
+    return [];
+  }
+
+  async listDirectory(path: string): Promise<ITEM_API_DTO[]> {
+    return [];
+  }
+
+  async searchGlob(pathWithPattern: string): Promise<ITEM_API_DTO[]> {
+    return [];
+  }
+}
+export function isTauriIPCSupported() {
+  return (
+    window.__TAURI_IPC__ !== undefined &&
+    window.__TAURI_METADATA__ !== undefined
+  );
 }
 
-export { getBackendProvider };
+function getBackendProvider(): BackendProvider {
+  if (isTauriIPCSupported()) return new IPCBackendProvider();
+  if (EXPERIMENTAL_IPC_MOCKING_FEATURE) return new MockBackendProvider();
+  throw Error(
+    "Unable to get suitable backend provider for current environment"
+  );
+}
+
+export { getBackendProvider, EXPERIMENTAL_IPC_MOCKING_FEATURE };

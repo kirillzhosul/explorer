@@ -28,10 +28,11 @@ import {
   TauriIPCMissing,
 } from "@@widgets/tauriMissingIPC";
 import { useSidebar } from "../widgets/sidebar/useSidebar";
-import { getBackendProvider } from "@api";
+import { getBackendProvider, EXPERIMENTAL_IPC_MOCKING_FEATURE } from "@api";
 
 export function App() {
-  if (!isTauriIPCSupported()) return <TauriIPCMissing />;
+  if (!isTauriIPCSupported() && !EXPERIMENTAL_IPC_MOCKING_FEATURE)
+    return <TauriIPCMissing />;
 
   const sidebar = useSidebar();
   const contextMenu = useContextMenu();
