@@ -16,8 +16,8 @@ export function usePathQuery(basePath: string) {
     }
     requestPathWrapper(path)
       .then((data) => {
-        setError(undefined)
-        setItems(data)
+        setError(undefined);
+        setItems(data);
       })
       .catch((error) => {
         console.log(

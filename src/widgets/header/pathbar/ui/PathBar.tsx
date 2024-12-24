@@ -7,6 +7,7 @@ import styles from "./Pathbar.module.css";
 
 import { displayInternalPath, INTERNALS_MARK } from "@@shared/lib/internals";
 import clsx from "clsx";
+import { getPathSeparator } from "@@shared/lib/path";
 
 interface PATH_BAR_PROPS {
   fullPath: string;
@@ -25,8 +26,10 @@ export function PathBar({ fullPath, onChangePath }: PATH_BAR_PROPS) {
   const [focusForPath, setFocusForPath] = useState<boolean>(false);
 
   // TODO: Display disk name rather than raw disk path
-  const isDisabled = fullPath.startsWith(INTERNALS_MARK)
-  const displaySegments = isDisabled ? [displayInternalPath(fullPath)] : splitPath(fullPath)
+  const isDisabled = fullPath.startsWith(INTERNALS_MARK);
+  const displaySegments = isDisabled
+    ? [displayInternalPath(fullPath)]
+    : splitPath(fullPath);
 
   return (
     <div
@@ -64,15 +67,15 @@ export function PathBar({ fullPath, onChangePath }: PATH_BAR_PROPS) {
           </div>
           {displaySegments.map((pathSegment, pathIndex) => {
             return (
-              <div className={styles.pathBarCompositeSegment} key={pathIndex + pathSegment}>
+              <div
+                className={styles.pathBarCompositeSegment}
+                key={pathIndex + pathSegment}
+              >
                 <div
                   className={styles.pathBarSegment}
                   onClick={() => {
-                    let newPath = splitPath(fullPath).slice(
-                      0,
-                      pathIndex + 1
-                    );
-                    onChangePath(newPath.join("\\"));
+                    let newPath = splitPath(fullPath).slice(0, pathIndex + 1);
+                    onChangePath(newPath.join(getPathSeparator()));
                   }}
                 >
                   <span id="path-bar-segment">{pathSegment}</span>

@@ -5,7 +5,7 @@
 // Defines possible ways to handle paths for different os
 export enum OsPathStyle {
   windows,
-  posix
+  posix,
 }
 
 // Defines possible separators for different os
@@ -13,15 +13,25 @@ export enum OsPathSeparator {
   windows = "\\",
   windows_drive = ":\\",
   windows_drive_mark = ":",
-  posix = "/"
+  posix = "/",
 }
 
 // Default fallback,
 // TODO: Allow to be modified or detected
 export const OS_DEFAULT_PATH_STYLE_FALLBACK = OsPathStyle.posix;
 
+export function getPathSeparator(
+  os_path_style: OsPathStyle = OS_DEFAULT_PATH_STYLE_FALLBACK
+): string {
+  if (os_path_style == OsPathStyle.posix) return OsPathSeparator.posix;
+  if (os_path_style == OsPathStyle.windows) return OsPathSeparator.windows;
+  throw new Error("Unknown path style");
+}
 
-export function splitPath(path: string, os_path_style: OsPathStyle = OS_DEFAULT_PATH_STYLE_FALLBACK): string[] {
+export function splitPath(
+  path: string,
+  os_path_style: OsPathStyle = OS_DEFAULT_PATH_STYLE_FALLBACK
+): string[] {
   /*
     Split given raw path into array of path items
   */
@@ -29,8 +39,8 @@ export function splitPath(path: string, os_path_style: OsPathStyle = OS_DEFAULT_
     if (path.startsWith(OsPathSeparator.posix)) {
       path = path.slice(1);
     }
-    if (path == "") return [OsPathSeparator.posix]
-    return path.split(OsPathSeparator.posix)
+    if (path == "") return [OsPathSeparator.posix];
+    return path.split(OsPathSeparator.posix);
   }
 
   if (path.endsWith(OsPathSeparator.windows_drive)) {
@@ -38,14 +48,16 @@ export function splitPath(path: string, os_path_style: OsPathStyle = OS_DEFAULT_
     // we should handle that case so we not have blank empty item
     path = path.slice(0, path.length - OsPathSeparator.windows_drive.length);
   }
-  return path.replace(
-    OsPathSeparator.windows_drive,
-    OsPathSeparator.windows
-  ).split(OsPathSeparator.windows).filter(Boolean);
+  return path
+    .replace(OsPathSeparator.windows_drive, OsPathSeparator.windows)
+    .split(OsPathSeparator.windows)
+    .filter(Boolean);
 }
 
-
-export function getPathTarget(path: string, os_path_style: OsPathStyle = OS_DEFAULT_PATH_STYLE_FALLBACK): string {
+export function getPathTarget(
+  path: string,
+  os_path_style: OsPathStyle = OS_DEFAULT_PATH_STYLE_FALLBACK
+): string {
   /*
     Return target filename or directory from path
     Examples:
@@ -54,12 +66,12 @@ export function getPathTarget(path: string, os_path_style: OsPathStyle = OS_DEFA
       a/b/c.txt -> c.txt
   */
   if (os_path_style == OsPathStyle.posix) {
-    if (path == OsPathSeparator.posix) return path
-    path = path.replace(RegExp(`${OsPathSeparator.posix}+$`), "") // Replaces all trailing slashes
+    if (path == OsPathSeparator.posix) return path;
+    path = path.replace(RegExp(`${OsPathSeparator.posix}+$`), ""); // Replaces all trailing slashes
   }
 
-  const segments = splitPath(path, os_path_style)
-  const target = segments.pop()
+  const segments = splitPath(path, os_path_style);
+  const target = segments.pop();
   if (target === undefined && os_path_style == OsPathStyle.posix) {
     return OsPathSeparator.posix;
   }
@@ -67,8 +79,10 @@ export function getPathTarget(path: string, os_path_style: OsPathStyle = OS_DEFA
   return target ?? "";
 }
 
-
-export function getFileExtension(path: string, os_path_style: OsPathStyle = OS_DEFAULT_PATH_STYLE_FALLBACK): string {
+export function getFileExtension(
+  path: string,
+  os_path_style: OsPathStyle = OS_DEFAULT_PATH_STYLE_FALLBACK
+): string {
   /*
     Return extension of the file
   */
@@ -88,17 +102,22 @@ export function getFileExtension(path: string, os_path_style: OsPathStyle = OS_D
     }
   }
 
-  return ""
+  return "";
 }
 
-
-const isPathSeparator = (value: string, os_path_style: OsPathStyle = OS_DEFAULT_PATH_STYLE_FALLBACK): boolean => {
+const isPathSeparator = (
+  value: string,
+  os_path_style: OsPathStyle = OS_DEFAULT_PATH_STYLE_FALLBACK
+): boolean => {
   /*
     Return is given value is separator for given os path style
     (Posix does not contain any special disk path specification, as Windows does)
   */
   if (os_path_style == OsPathStyle.posix) {
-    return value == OsPathSeparator.posix
+    return value == OsPathSeparator.posix;
   }
-  return value === OsPathSeparator.windows || value === OsPathSeparator.windows_drive_mark
+  return (
+    value === OsPathSeparator.windows ||
+    value === OsPathSeparator.windows_drive_mark
+  );
 };

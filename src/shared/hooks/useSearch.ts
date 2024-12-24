@@ -3,6 +3,7 @@ import { ITEM } from "@@entities/item";
 import { getBackendProvider } from "@api";
 import { ITEM_API_DTO } from "@api";
 import { itemApiToItem } from "@api";
+import { getPathSeparator } from "@@shared/lib/path";
 
 export function useSearch() {
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -21,7 +22,8 @@ export function useSearch() {
     }
 
     // TODO: Refactor
-    let basePath = path.endsWith("\\") ? path : path + "\\";
+    const ph = getPathSeparator();
+    let basePath = path.endsWith(ph) ? path : path + ph;
     let pattern = basePath + searchQuery;
 
     getBackendProvider()

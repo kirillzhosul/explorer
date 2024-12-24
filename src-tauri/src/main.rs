@@ -123,6 +123,7 @@ fn get_windows_link_info() {}
 fn rename_item() {}
 
 #[tauri::command]
+#[cfg(target_os = "windows")]
 fn create_directory<'a>(path: &'a str, name: &'a str) -> Result<&'a str, String> {
     fs::create_dir(path.to_owned() + "\\" + name).map_err(|err| err.to_string())?;
 
@@ -130,8 +131,41 @@ fn create_directory<'a>(path: &'a str, name: &'a str) -> Result<&'a str, String>
 }
 
 #[tauri::command]
+#[cfg(target_os = "windows")]
 fn create_text_file<'a>(path: &'a str, name: &'a str) -> Result<&'a str, String> {
     File::create(path.to_owned() + "\\" + name).map_err(|err| err.to_string())?;
+    Ok(path)
+}
+
+
+
+#[tauri::command]
+#[cfg(target_os = "macos")]
+fn create_directory<'a>(path: &'a str, name: &'a str) -> Result<&'a str, String> {
+    fs::create_dir(path.to_owned() + "/" + name).map_err(|err| err.to_string())?;
+
+    Ok(path)
+}
+
+#[tauri::command]
+#[cfg(target_os = "macos")]
+fn create_text_file<'a>(path: &'a str, name: &'a str) -> Result<&'a str, String> {
+    File::create(path.to_owned() + "/" + name).map_err(|err| err.to_string())?;
+    Ok(path)
+}
+
+#[tauri::command]
+#[cfg(target_os = "linux")]
+fn create_directory<'a>(path: &'a str, name: &'a str) -> Result<&'a str, String> {
+    fs::create_dir(path.to_owned() + "/" + name).map_err(|err| err.to_string())?;
+
+    Ok(path)
+}
+
+#[tauri::command]
+#[cfg(target_os = "linux")]
+fn create_text_file<'a>(path: &'a str, name: &'a str) -> Result<&'a str, String> {
+    File::create(path.to_owned() + "/" + name).map_err(|err| err.to_string())?;
     Ok(path)
 }
 
