@@ -19,7 +19,11 @@ export function ContextMenuButton({
   icon,
 }: CONTEXT_MENU_BUTTON_PROPS) {
   return (
-    <div className={styles.container} onClick={() => dispatch(type)}>
+    <div
+      className={styles.container}
+      onClick={() => dispatch(type)}
+      id="context-menu-button-container"
+    >
       <div className={styles.icon}>{icon && <>{icon}</>}</div>
 
       <div className={styles.button}>{children}</div>

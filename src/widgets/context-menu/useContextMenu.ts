@@ -23,12 +23,28 @@ function moveContextMenu(e: MouseEvent) {
   contextMenu.style.left = mouseX(e) + "px";
 }
 
+function isMouseMovedAgainstContextMenu(e: MouseEvent): boolean {
+  /**
+   * @kirillzhosul: Implemented due to MacOS bug with context menu which is closing after releasing touch.
+   *
+   * Assume mouse moved against context menu if context menu position is not equal to the current mouse position.
+   */
+  const contextMenu = document.getElementById("context-menu");
+  if (!contextMenu) {
+    return false;
+  }
+  const assumedY = mouseY(e) + "px";
+  const assumedX = mouseX(e) + "px";
+  return (
+    contextMenu.style.top !== assumedY || contextMenu.style.left !== assumedX
+  );
+}
 export const useContextMenu = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const { heldButtons } = useKeyboardHandler(false);
 
   useEffect(() => {
-    const contextMenuHandler = function (e: any) {
+    const contextMenuHandler = function (e: MouseEvent) {
       setIsOpen(true);
       moveContextMenu(e);
       e.preventDefault();
@@ -42,10 +58,12 @@ export const useContextMenu = () => {
   useEffect(() => {
     const mouseUpHandle = (e: MouseEvent) => {
       let target = e.target as HTMLElement | undefined;
+      if (!isMouseMovedAgainstContextMenu(e)) return;
       // TODO replace with module css
       if (
         target?.className !== "context-menu-button" &&
-        target?.id !== "context-menu"
+        target?.id !== "context-menu" &&
+        target?.id !== "context-menu-button-container"
       ) {
         e.stopPropagation();
         setIsOpen(false);
