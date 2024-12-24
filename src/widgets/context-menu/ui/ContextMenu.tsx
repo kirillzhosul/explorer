@@ -14,6 +14,10 @@ export function ViewAsButtons({
 }: {
   dispatcher: (type: CONTEXT_MENU_ACTION_TYPE) => any;
 }) {
+  // TODO(kirillzhosul): Add icons
+  // TODO(kirillzhosul): Add dropdown feature
+  // TODO(kirillzhosul): Refactor hotkey storage
+  // TODO(kirillzhosul): Fix MacOS keybinding
   return (
     <>
       <ContextMenuButton

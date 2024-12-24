@@ -33,12 +33,11 @@ export function useSidebar() {
     sidebarItems.push(
       ...(await Promise.all(
         pinned.map(async (path: string): Promise<ITEM> => {
-          return itemApiToItem(
-            await getBackendProvider().getItemInfo(path),
-            isSelected,
-            isBaseSelected,
-            isPinned
-          );
+          const item = await getBackendProvider().getItemInfo(path);
+          if (item === null) {
+            throw new Error(`Item ${path} not found`);
+          }
+          return itemApiToItem(item, isSelected, isBaseSelected, isPinned);
         })
       ))
     );
