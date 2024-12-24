@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ITEM } from "@@entities/item";
-import { searchGlob } from "@api";
+import { getBackendProvider } from "@api";
 import { ITEM_API_DTO } from "@api";
 import { itemApiToItem } from "@api";
 
@@ -24,13 +24,15 @@ export function useSearch() {
     let basePath = path.endsWith("\\") ? path : path + "\\";
     let pattern = basePath + searchQuery;
 
-    searchGlob(pattern).then((items) => {
-      setFoundItems(
-        items.flatMap((item: ITEM_API_DTO): ITEM => {
-          return itemApiToItem(item, isSelected, isBaseSelected, isPinned);
-        })
-      );
-    });
+    getBackendProvider()
+      .searchGlob(pattern)
+      .then((items) => {
+        setFoundItems(
+          items.flatMap((item: ITEM_API_DTO): ITEM => {
+            return itemApiToItem(item, isSelected, isBaseSelected, isPinned);
+          })
+        );
+      });
   };
 
   return {

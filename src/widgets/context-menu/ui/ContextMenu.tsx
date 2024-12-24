@@ -6,7 +6,7 @@ import { ContextMenuButton } from "./button";
 type CONTEXT_MENU_PROPS = {
   dispatcher: (type: CONTEXT_MENU_ACTION_TYPE) => any;
   selection: ITEM[];
-  path: string,
+  path: string;
 };
 
 export function ViewAsButtons({
@@ -115,7 +115,11 @@ export function SelectionButtons({
   );
 }
 
-export function ContextMenu({ dispatcher, selection, path }: CONTEXT_MENU_PROPS) {
+export function ContextMenu({
+  dispatcher,
+  selection,
+  path,
+}: CONTEXT_MENU_PROPS) {
   // TODO: fix gap for hotkey
   // TODO: add icons
   // TODO: add dropdown feature
@@ -124,7 +128,7 @@ export function ContextMenu({ dispatcher, selection, path }: CONTEXT_MENU_PROPS)
   const hasPinsOnly = selection.filter((e) => !e.flags.pin).length === 0;
 
   if (path.startsWith(INTERNALS_MARK)) {
-    return <></>
+    return <></>;
   }
   return (
     <div className="context-menu-closed" id="context-menu">

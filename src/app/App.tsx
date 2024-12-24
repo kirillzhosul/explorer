@@ -1,7 +1,4 @@
-import {
-  INTERNALS_HOME,
-  INTERNALS_MARK
-} from "@@shared/lib/internals";
+import { INTERNALS_HOME, INTERNALS_MARK } from "@@shared/lib/internals";
 import { useEffect } from "react";
 import { Header } from "../widgets/header";
 import styles from "./App.module.css";
@@ -9,7 +6,6 @@ import styles from "./App.module.css";
 import { ITEM } from "@@entities/item";
 import { ITEM_TYPE } from "@@entities/item/model";
 import { useSettings } from "@@shared/settings";
-import { createDirectory, createTextFile, deleteItem, executeFile } from "@api";
 import { SettingsView } from "../views/settings/ui/SettingsView";
 import { CONTEXT_MENU_ACTION_TYPE } from "../widgets/context-menu";
 import { ContextMenu } from "../widgets/context-menu/ui/ContextMenu";
@@ -27,12 +23,15 @@ import { useHotkeys } from "@@shared/hooks/keyboard/useHotkeys";
 import { usePathQueryFilter } from "@@shared/hooks/usePathQueryFilter";
 import { useSearch } from "@@shared/hooks/useSearch";
 import { useSelection } from "@@shared/hooks/useSelection";
-import { isTauriIPCSupported, TauriIPCMissing } from "@@widgets/tauriMissingIPC";
+import {
+  isTauriIPCSupported,
+  TauriIPCMissing,
+} from "@@widgets/tauriMissingIPC";
 import { useSidebar } from "../widgets/sidebar/useSidebar";
-
+import { getBackendProvider } from "@api";
 
 export function App() {
-  if (!isTauriIPCSupported()) return <TauriIPCMissing />
+  if (!isTauriIPCSupported()) return <TauriIPCMissing />;
 
   const sidebar = useSidebar();
   const contextMenu = useContextMenu();
@@ -50,10 +49,10 @@ export function App() {
     }
     if (item.type == ITEM_TYPE.file) {
       history.push(HISTORY_ACTION.execute_item, item);
-      return executeFile(item.path);
+      return getBackendProvider().executeFile(item.path);
     }
 
-    return executeFile(item.path);
+    return getBackendProvider().executeFile(item.path);
   };
 
   const contextMenuDispatcher = (type: CONTEXT_MENU_ACTION_TYPE) => {
@@ -68,16 +67,20 @@ export function App() {
         break;
       case CONTEXT_MENU_ACTION_TYPE.delete:
         selection.items.forEach((item) => {
-          deleteItem(item.path).then(q.requestPath);
+          getBackendProvider().deleteItem(item.path).then(q.requestPath);
         });
         break;
       case CONTEXT_MENU_ACTION_TYPE.createDirectory:
         history.push(HISTORY_ACTION.create_item, undefined, q.path);
-        createDirectory(q.path).then(q.requestPath);
+        getBackendProvider()
+          .createDirectory(q.path, "New Directory")
+          .then(q.requestPath);
         break;
       case CONTEXT_MENU_ACTION_TYPE.createTextFile:
         history.push(HISTORY_ACTION.create_item, undefined, q.path);
-        createTextFile(q.path).then(q.requestPath);
+        getBackendProvider()
+          .createTextFile(q.path, "New File.txt")
+          .then(q.requestPath);
         break;
       case CONTEXT_MENU_ACTION_TYPE.pin:
         settings.setSettings({
@@ -154,7 +157,9 @@ export function App() {
         break;
       case HOTKEY.delete:
         Promise.all(
-          selection.items.map(async (item) => await deleteItem(item.path))
+          selection.items.map(
+            async (item) => await getBackendProvider().deleteItem(item.path)
+          )
         ).then(() => selection.setSelection([]));
         break;
       case HOTKEY.enter:

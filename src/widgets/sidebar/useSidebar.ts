@@ -8,7 +8,8 @@ import {
 } from "@@shared/lib/internals";
 import { ITEM_TYPE } from "@@entities/item/model";
 
-import { getItemInfo, itemApiToItem, requestPathWrapper } from "@api";
+import { itemApiToItem, requestPathWrapper } from "@api";
+import { getBackendProvider } from "@@shared/api/api";
 
 export function useSidebar() {
   const [items, setItems] = useState<ITEM[]>([]);
@@ -33,7 +34,7 @@ export function useSidebar() {
       ...(await Promise.all(
         pinned.map(async (path: string): Promise<ITEM> => {
           return itemApiToItem(
-            await getItemInfo(path),
+            await getBackendProvider().getItemInfo(path),
             isSelected,
             isBaseSelected,
             isPinned

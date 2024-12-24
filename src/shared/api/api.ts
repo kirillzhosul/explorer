@@ -1,97 +1,118 @@
 import { INTERNALS_MARK } from "@@shared/lib/internals";
 import { invoke } from "@tauri-apps/api";
-import { INITIAL_PARAMS, ITEM_API_DTO } from "./types";
+import { ITEM_API_DTO } from "./types";
 
-const getItemInfo = async (path: string): Promise<ITEM_API_DTO> => {
-  if (path.startsWith(INTERNALS_MARK)) {
-    throw Error("Tried to handle internal path that is forbidden to request!");
+interface BackendProvider {
+  /**
+   * Provider protocol for internal backend calls.
+   */
+
+  /**
+   * Acquire information about entry (file / directory) by its path
+   */
+  getItemInfo(path: string): Promise<ITEM_API_DTO>;
+  deleteItem(path: string): Promise<string>;
+  createTextFile(path: string, name: string): Promise<string>;
+  createDirectory(path: string, name: string): Promise<string>;
+  executeFile(path: string): Promise<undefined>;
+  getDiskList(): Promise<string[][]>;
+  listDirectory(path: string): Promise<ITEM_API_DTO[]>;
+  searchGlob(pathWithPattern: string): Promise<ITEM_API_DTO[]>;
+}
+
+class IPCBackendProvider implements BackendProvider {
+  async getItemInfo(path: string): Promise<ITEM_API_DTO> {
+    if (path.startsWith(INTERNALS_MARK)) {
+      throw Error(
+        "Tried to handle internal path that is forbidden to request!"
+      );
+    }
+    return await invoke("get_item_info", {
+      path,
+    });
   }
-  return await invoke("get_item_info", {
-    path,
-  });
-};
 
-const queryInitialParams = async (): Promise<INITIAL_PARAMS> => {
-  return await invoke("query_initial_params", {});
-};
-
-const deleteItem = async (path: string): Promise<string> => {
-  if (path.startsWith(INTERNALS_MARK)) {
-    throw Error("Tried to handle internal path that is forbidden to request!");
-  }
-  return await invoke("delete_item", {
-    path,
-  });
-};
-
-const createTextFile = async (
-  path: string,
-  name: string = "New file.txt"
-): Promise<string> => {
-  if (path.startsWith(INTERNALS_MARK)) {
-    throw Error("Tried to handle internal path that is forbidden to request!");
+  async deleteItem(path: string): Promise<string> {
+    if (path.startsWith(INTERNALS_MARK)) {
+      throw Error(
+        "Tried to handle internal path that is forbidden to request!"
+      );
+    }
+    return await invoke("delete_item", {
+      path,
+    });
   }
 
-  return await invoke("create_text_file", {
-    path,
-    name,
-  });
-};
+  async createTextFile(path: string, name: string): Promise<string> {
+    if (path.startsWith(INTERNALS_MARK)) {
+      throw Error(
+        "Tried to handle internal path that is forbidden to request!"
+      );
+    }
 
-const createDirectory = async (
-  path: string,
-  name: string = "New folder"
-): Promise<string> => {
-  if (path.startsWith(INTERNALS_MARK)) {
-    throw Error("Tried to handle internal path that is forbidden to request!");
+    return await invoke("create_text_file", {
+      path,
+      name,
+    });
   }
-  return await invoke("create_directory", {
-    path,
-    name,
-  });
-};
 
-const executeFile = async (path: string): Promise<undefined> => {
-  if (path.startsWith(INTERNALS_MARK)) {
-    throw Error("Tried to handle internal path that is forbidden to request!");
+  async createDirectory(
+    path: string,
+    name: string = "New folder"
+  ): Promise<string> {
+    if (path.startsWith(INTERNALS_MARK)) {
+      throw Error(
+        "Tried to handle internal path that is forbidden to request!"
+      );
+    }
+    return await invoke("create_directory", {
+      path,
+      name,
+    });
   }
-  return await invoke("execute_file", {
-    path,
-  });
-};
 
-const getDiskList = async (): Promise<string[][]> => {
-  // TODO: typed api
-  return await invoke("get_disk_list");
-};
-
-const listDirectory = async (path: string): Promise<ITEM_API_DTO[]> => {
-  if (path.startsWith(INTERNALS_MARK)) {
-    throw Error("Tried to handle internal path that is forbidden to request!");
+  async executeFile(path: string): Promise<undefined> {
+    if (path.startsWith(INTERNALS_MARK)) {
+      throw Error(
+        "Tried to handle internal path that is forbidden to request!"
+      );
+    }
+    return await invoke("execute_file", {
+      path,
+    });
   }
-  return await invoke("list_directory", {
-    path,
-  });
-};
 
-const searchGlob = async (pathWithPattern: string): Promise<ITEM_API_DTO[]> => {
-  if (pathWithPattern.startsWith(INTERNALS_MARK)) {
-    throw Error("Tried to handle internal path that is forbidden to request!");
+  async getDiskList(): Promise<string[][]> {
+    // TODO: typed api
+    return await invoke("get_disk_list");
   }
-  return await invoke("search_glob", {
-    pathWithPattern,
-    recurse: false,
-  });
-};
 
-export {
-  createDirectory,
-  createTextFile,
-  deleteItem,
-  executeFile,
-  getDiskList,
-  getItemInfo,
-  listDirectory,
-  queryInitialParams,
-  searchGlob,
-};
+  async listDirectory(path: string): Promise<ITEM_API_DTO[]> {
+    if (path.startsWith(INTERNALS_MARK)) {
+      throw Error(
+        "Tried to handle internal path that is forbidden to request!"
+      );
+    }
+    return await invoke("list_directory", {
+      path,
+    });
+  }
+
+  async searchGlob(pathWithPattern: string): Promise<ITEM_API_DTO[]> {
+    if (pathWithPattern.startsWith(INTERNALS_MARK)) {
+      throw Error(
+        "Tried to handle internal path that is forbidden to request!"
+      );
+    }
+    return await invoke("search_glob", {
+      pathWithPattern,
+      recurse: false,
+    });
+  }
+}
+
+function getBackendProvider(): BackendProvider {
+  return new IPCBackendProvider();
+}
+
+export { getBackendProvider };
