@@ -24,8 +24,8 @@ Look into GitHub issues, or read
 
 ### OS support
 
-Both Windows and Linux is tested and supported. \
-For local environment and fixes:  [read that](docs/HOW_TO_BUILD.md)
+Windows, Linux and MacOS is supported. \
+For local environment and fixes (mostly linux workaround):  [read that](docs/HOW_TO_BUILD.md)
 
 ### Built stack
 
