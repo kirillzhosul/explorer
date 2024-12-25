@@ -6,6 +6,7 @@ use disk_list;
 #[cfg(target_os = "windows")]
 use std::os::windows::fs::MetadataExt;
 
+
 mod application_state;
 mod initial_params;
 
@@ -74,9 +75,8 @@ fn item_entry_from_os_meta(path: &Path, meta: fs::Metadata) -> ItemEntry<'static
             windows: 0,
             linux: 0,
         },
-        file_size: 0,
+        file_size: meta.len(),
     };
-
 }
 #[tauri::command]
 fn execute_file(path: &str) {
@@ -87,12 +87,23 @@ fn execute_file(path: &str) {
 #[tauri::command]
 #[cfg(target_os = "linux")]
 fn get_disk_list() -> Vec<Vec<String>> {
+
+    let output = Command::new("df")
+        .arg("-h")
+        .arg("/")
+        .output()
+        .expect("Failed to execute command");
+
+    let output_str = String::from_utf8_lossy(&output.stdout);
+    let lines: Vec<&str> = output_str.split('\n').collect();
+    let root_info: Vec<&str> = lines[1].split_whitespace().collect();
+
     vec![vec![
         "System Mount Point".to_string(),
-        "NULL".to_string(),
-        "/".to_string(),
-        "0GB".to_string(),
-        "0GB".to_string(),
+        root_info[0].to_string(),
+        root_info[5].to_string(),
+        root_info[1].to_string(),
+        root_info[3].to_string(),
     ]]
 }
 
@@ -102,16 +113,26 @@ fn get_disk_list() -> Vec<Vec<String>> {
     disk_list::get_disk_list()
 }
 
-
 #[tauri::command]
 #[cfg(target_os = "macos")]
 fn get_disk_list() -> Vec<Vec<String>> {
+
+    let output = Command::new("df")
+        .arg("-h")
+        .arg("/")
+        .output()
+        .expect("Failed to execute command");
+
+    let output_str = String::from_utf8_lossy(&output.stdout);
+    let lines: Vec<&str> = output_str.split('\n').collect();
+    let root_info: Vec<&str> = lines[1].split_whitespace().collect();
+
     vec![vec![
         "System Mount Point".to_string(),
-        "NULL".to_string(),
-        "/".to_string(),
-        "0GB".to_string(),
-        "0GB".to_string(),
+        root_info[0].to_string(),
+        root_info[8].to_string(),
+        root_info[1].to_string(),
+        root_info[3].to_string(),
     ]]
 }
 // TODO: Implement
