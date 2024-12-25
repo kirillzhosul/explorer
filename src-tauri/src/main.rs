@@ -85,7 +85,7 @@ fn execute_file(path: &str) {
 }
 
 #[tauri::command]
-#[cfg(target_os = "linux")]
+#[cfg(any(target_os = "linux", target_os = "macos"))]
 fn get_disk_list() -> Vec<Vec<String>> {
 
     let output = Command::new("df")
@@ -113,28 +113,7 @@ fn get_disk_list() -> Vec<Vec<String>> {
     disk_list::get_disk_list()
 }
 
-#[tauri::command]
-#[cfg(target_os = "macos")]
-fn get_disk_list() -> Vec<Vec<String>> {
 
-    let output = Command::new("df")
-        .arg("-h")
-        .arg("/")
-        .output()
-        .expect("Failed to execute command");
-
-    let output_str = String::from_utf8_lossy(&output.stdout);
-    let lines: Vec<&str> = output_str.split('\n').collect();
-    let root_info: Vec<&str> = lines[1].split_whitespace().collect();
-
-    vec![vec![
-        "System Mount Point".to_string(),
-        root_info[0].to_string(),
-        root_info[8].to_string(),
-        root_info[1].to_string(),
-        root_info[3].to_string(),
-    ]]
-}
 // TODO: Implement
 #[tauri::command]
 fn get_windows_link_info() {}
