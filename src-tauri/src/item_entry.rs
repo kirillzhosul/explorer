@@ -22,10 +22,10 @@ pub struct ItemEntryAttributes {
 
 
 #[cfg(target_os = "windows")]
-pub fn item_entry_from_os_meta(path: &Path, meta: fs::Metadata) -> item_entry::ItemEntry<'static> {
+pub fn item_entry_from_os_meta(path: &Path, meta: fs::Metadata) -> ItemEntry<'static> {
     use std::os::windows::fs::MetadataExt;
 
-    return item_entry::ItemEntry {
+    return ItemEntry {
         path: path.display().to_string(),
         type_: internal_type_from_os_meta(&meta),
         readonly: meta.permissions().readonly(),
@@ -39,14 +39,14 @@ pub fn item_entry_from_os_meta(path: &Path, meta: fs::Metadata) -> item_entry::I
 }
 
 #[cfg(target_os = "linux")]
-pub fn item_entry_from_os_meta(path: &Path, meta: fs::Metadata) -> item_entry::ItemEntry<'static> {
+pub fn item_entry_from_os_meta(path: &Path, meta: fs::Metadata) -> ItemEntry<'static> {
     use std::os::unix::fs::MetadataExt;
 
-    return item_entry::ItemEntry {
+    return ItemEntry {
         path: path.display().to_string(),
         type_: internal_type_from_os_meta(&meta),
         readonly: meta.permissions().readonly(),
-        attributes: item_entry::ItemEntryAttributes {
+        attributes: ItemEntryAttributes {
             windows: 0,
             linux: 0,
             macos: 0,
