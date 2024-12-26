@@ -113,7 +113,7 @@ class IPCBackendProvider implements BackendProvider {
   }
 }
 class MockBackendProvider implements BackendProvider {
-  async getItemInfo(path: string): Promise<ITEM_API_DTO | null> {
+  async getItemInfo(_path: string): Promise<ITEM_API_DTO | null> {
     return null;
   }
 
@@ -121,18 +121,19 @@ class MockBackendProvider implements BackendProvider {
     return path;
   }
 
-  async createTextFile(path: string, name: string): Promise<string> {
+  async createTextFile(_path: string, name: string): Promise<string> {
     return name;
   }
 
   async createDirectory(
-    path: string,
+    _path: string,
     name: string = "New folder"
   ): Promise<string> {
+    // @ts-ignore
     return name;
   }
 
-  async executeFile(path: string): Promise<undefined> {
+  async executeFile(_path: string): Promise<undefined> {
     return undefined;
   }
 
@@ -140,11 +141,11 @@ class MockBackendProvider implements BackendProvider {
     return [];
   }
 
-  async listDirectory(path: string): Promise<ITEM_API_DTO[]> {
+  async listDirectory(_path: string): Promise<ITEM_API_DTO[]> {
     return [];
   }
 
-  async searchGlob(pathWithPattern: string): Promise<ITEM_API_DTO[]> {
+  async searchGlob(_pathWithPattern: string): Promise<ITEM_API_DTO[]> {
     return [];
   }
 }
