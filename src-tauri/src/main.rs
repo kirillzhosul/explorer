@@ -101,7 +101,7 @@ fn get_disk_list() -> Vec<Vec<String>> {
     vec![vec![
         "System Mount Point".to_string(),
         root_info[0].to_string(),
-        root_info[5].to_string(),
+        "/".to_string(),
         root_info[1].to_string(),
         root_info[3].to_string(),
     ]]
