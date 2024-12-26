@@ -24,6 +24,7 @@ ICON_OVERRIDES_BY_EXTENSION.set("txt", _ICON_TEXT);
 
 const ICON_BY_TYPE = new Map<ITEM_TYPE, string>();
 ICON_BY_TYPE.set(ITEM_TYPE.directory, "/icons/directory.png");
+ICON_BY_TYPE.set(ITEM_TYPE.symlink, "/icons/directory.png");
 ICON_BY_TYPE.set(ITEM_TYPE.drive, "/icons/drive.png");
 ICON_BY_TYPE.set(ITEM_TYPE.file, "/icons/file.png");
 

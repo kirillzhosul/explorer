@@ -44,7 +44,11 @@ export function App() {
   const q = usePathQueryFilter(INTERNALS_HOME);
 
   const executeItem = (item: ITEM) => {
-    if (item.type == ITEM_TYPE.directory || item.type == ITEM_TYPE.drive) {
+    if (
+      item.type == ITEM_TYPE.directory ||
+      item.type == ITEM_TYPE.drive ||
+      item.type == ITEM_TYPE.symlink
+    ) {
       history.push(HISTORY_ACTION.internal_open_item, item);
       return q.setPath(item.path);
     }

@@ -5,6 +5,7 @@ enum ITEM_TYPE {
   directory,
   file,
   drive,
+  symlink,
 }
 
 type ITEM = {

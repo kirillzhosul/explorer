@@ -27,7 +27,7 @@ pub fn item_entry_from_os_meta(path: &Path, meta: fs::Metadata) -> item_entry::I
 
     return item_entry::ItemEntry {
         path: path.display().to_string(),
-        type_: if meta.is_dir() { "directory" } else { "file" },
+        type_: internal_type_from_os_meta(&meta),
         readonly: meta.permissions().readonly(),
         attributes: item_entry::ItemEntryAttributes {
             windows: meta.file_attributes(),
@@ -44,7 +44,7 @@ pub fn item_entry_from_os_meta(path: &Path, meta: fs::Metadata) -> item_entry::I
 
     return item_entry::ItemEntry {
         path: path.display().to_string(),
-        type_: if meta.is_dir() { "directory" } else { "file" },
+        type_: internal_type_from_os_meta(&meta),
         readonly: meta.permissions().readonly(),
         attributes: item_entry::ItemEntryAttributes {
             windows: 0,
@@ -59,7 +59,7 @@ pub fn item_entry_from_os_meta(path: &Path, meta: fs::Metadata) -> item_entry::I
 pub fn item_entry_from_os_meta(path: &Path, meta: fs::Metadata) -> ItemEntry<'static> {
     return ItemEntry {
         path: path.display().to_string(),
-        type_: if meta.is_dir() { "directory" } else { "file" },
+        type_: internal_type_from_os_meta(&meta),
         readonly: meta.permissions().readonly(),
         attributes: ItemEntryAttributes {
             windows: 0,
@@ -68,4 +68,15 @@ pub fn item_entry_from_os_meta(path: &Path, meta: fs::Metadata) -> ItemEntry<'st
         },
         file_size: meta.len(),
     };
+}
+
+fn internal_type_from_os_meta(meta: &fs::Metadata) -> &'static str {
+    if meta.is_dir() {
+        return "directory";
+    } else {
+        if meta.is_symlink() {
+            return "symlink";
+        }
+        return "file";
+    }
 }
