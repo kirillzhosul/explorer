@@ -257,6 +257,8 @@ export function App() {
                       ...item,
                       flags: {
                         ...item.flags,
+
+                        pin: settings.settings.pinned.includes(item.path),
                         selection: selection.containsPath(item.path),
                         baseSelection:
                           item.path === selection.selectionBase?.path,
