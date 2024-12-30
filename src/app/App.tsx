@@ -103,15 +103,18 @@ export function App() {
         });
         break;
       case CONTEXT_MENU_ACTION_TYPE.unpin:
-        // TODO!: Only for one
-        const bookmarkItem = selection.items[0];
+        let mutatedPinned = [...settings.settings.pinned];
+        selection.items.forEach((item) => {
+          if (item.path.startsWith(INTERNALS_MARK)) return;
+          if (!mutatedPinned.includes(item.path)) return;
+          mutatedPinned.splice(mutatedPinned.indexOf(item.path), 1);
+        });
 
         settings.setSettings({
           ...settings.settings,
-          pinned: settings.settings.pinned.filter((path) => {
-            return bookmarkItem.path != path;
-          }),
+          pinned: mutatedPinned,
         });
+
         break;
       case CONTEXT_MENU_ACTION_TYPE.viewAsIcons:
         settings.setSettings({
